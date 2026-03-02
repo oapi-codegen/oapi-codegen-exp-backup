@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=../../../../configuration-schema.json
-package: issue200
+package: common
 generate:
   models: true
-output: issue200.gen.go
+output: gen/common/common.gen.go
 output-options:
-  resolve-type-name-collisions: true
+  skip-prune: true

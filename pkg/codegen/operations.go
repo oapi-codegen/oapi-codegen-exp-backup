@@ -131,6 +131,26 @@ func (pd *ParameterDefinition) Explode() bool {
 	return *pd.Spec.Explode
 }
 
+// SchemaType returns the first OpenAPI type string for this parameter's schema (e.g. "string", "integer"),
+// or empty string if unavailable.
+func (pd *ParameterDefinition) SchemaType() string {
+	if pd.Spec.Schema != nil && pd.Spec.Schema.Value != nil && pd.Spec.Schema.Value.Type != nil {
+		if s := pd.Spec.Schema.Value.Type.Slice(); len(s) > 0 {
+			return s[0]
+		}
+	}
+	return ""
+}
+
+// SchemaFormat returns the OpenAPI format string for this parameter's schema (e.g. "byte", "date-time"),
+// or empty string if unavailable.
+func (pd *ParameterDefinition) SchemaFormat() string {
+	if pd.Spec.Schema != nil && pd.Spec.Schema.Value != nil {
+		return pd.Spec.Schema.Value.Format
+	}
+	return ""
+}
+
 func (pd ParameterDefinition) GoVariableName() string {
 	name := LowercaseFirstCharacters(pd.GoName())
 	if IsGoKeyword(name) {
@@ -322,7 +342,29 @@ func (o *OperationDefinition) GetResponseTypeDefinitions() ([]ResponseTypeDefini
 				contentType := responseRef.Value.Content[contentTypeName]
 				// We can only generate a type if we have a schema:
 				if contentType.Schema != nil {
-					responseSchema, err := GenerateGoSchema(contentType.Schema, []string{o.OperationId, responseName})
+					// When a response has multiple JSON content types (e.g.,
+					// application/json, application/json-patch+json, and
+					// application/merge-patch+json), we include a content-type-derived
+					// segment in the schema path. This is necessary because
+					// GenerateGoSchema uses the path to name any inline types it
+					// creates (e.g., oneOf union members). Without the content type
+					// in the path, all content types for the same response produce
+					// identically-named inline types. If those content types have
+					// different schemas, the result is conflicting type declarations;
+					// if they have the same schema, the result is duplicate
+					// declarations. Both cases produce code that won't compile.
+					//
+					// We only add the content type segment when collision resolution
+					// is enabled (resolve-type-name-collisions) and jsonCount > 1,
+					// to avoid changing type names for existing users. Ideally the
+					// media type would always be part of the path for consistency.
+					// TODO: revisit this at the next major version change —
+					// always include the media type in the schema path.
+					schemaPath := []string{o.OperationId, responseName}
+					if jsonCount > 1 && util.IsMediaTypeJson(contentTypeName) && globalState.options.OutputOptions.ResolveTypeNameCollisions {
+						schemaPath = append(schemaPath, mediaTypeToCamelCase(contentTypeName))
+					}
+					responseSchema, err := GenerateGoSchema(contentType.Schema, schemaPath)
 					if err != nil {
 						return nil, fmt.Errorf("unable to determine Go type for %s.%s: %w", o.OperationId, contentTypeName, err)
 					}
@@ -366,7 +408,11 @@ func (o *OperationDefinition) GetResponseTypeDefinitions() ([]ResponseTypeDefini
 							return nil, fmt.Errorf("error dereferencing response Ref: %w", err)
 						}
 						if jsonCount > 1 && util.IsMediaTypeJson(contentTypeName) {
-							refType += mediaTypeToCamelCase(contentTypeName)
+							if resolved := resolvedNameForRefPath(responseRef.Ref, contentTypeName); resolved != "" {
+								refType = resolved + mediaTypeToCamelCase(contentTypeName)
+							} else {
+								refType += mediaTypeToCamelCase(contentTypeName)
+							}
 						}
 						td.Schema.RefType = refType
 					}
@@ -893,6 +939,12 @@ func GenerateResponseDefinitions(operationID string, responses map[string]*opena
 			if _, ok := refSet[refType]; !ok {
 				rd.Ref = refType
 				refSet[refType] = struct{}{}
+			}
+			// Ensure content schemas get the external ref qualifier so that
+			// non-fixed status code paths (e.g. "default") emit the qualified type.
+			for i, rcd := range rd.Contents {
+				ensureExternalRefsInSchema(&rcd.Schema, responseOrRef.Ref)
+				rd.Contents[i] = rcd
 			}
 		}
 		responseDefinitions = append(responseDefinitions, rd)
