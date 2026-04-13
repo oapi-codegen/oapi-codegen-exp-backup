@@ -10,6 +10,7 @@ import (
 	"go/token"
 	"io/fs"
 	"path"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -25,21 +26,9 @@ type Import struct {
 // generator to rewrite them to the target base path.
 const RuntimeModulePrefix = "github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/runtime/"
 
-// qualifierReplacements maps qualified references in params code (which imports
-// the types sub-package) to their unqualified forms for inlining.
-var qualifierReplacements = []struct{ old, new string }{
-	{"types.DateFormat", "DateFormat"},
-	{"types.Date", "Date"},
-	{"types.Email", "Email"},
-	{"types.UUID", "UUID"},
-	{"types.File", "File"},
-	{"types.Nullable", "Nullable"},
-	{"types.NewNullableWithValue", "NewNullableWithValue"},
-	{"types.NewNullNullable", "NewNullNullable"},
-	{"types.ErrNullableIsNull", "ErrNullableIsNull"},
-	{"types.ErrNullableNotSpecified", "ErrNullableNotSpecified"},
-	{"types.ErrValidationEmail", "ErrValidationEmail"},
-}
+// typesQualifierRe matches "types." followed by a Go identifier, used to
+// strip the package qualifier when inlining runtime code.
+var typesQualifierRe = regexp.MustCompile(`\btypes\.([A-Za-z_]\w*)`)
 
 // ExtractPackage reads all .go files from a sub-directory of the given FS
 // that contain an //oapi-runtime:function annotation and returns the
@@ -279,11 +268,8 @@ func stripAnnotations(code string) string {
 	return strings.Join(lines, "\n")
 }
 
-// dequalifyTypes replaces qualified type references (types.Date, etc.)
-// with unqualified forms for inlining into a single package.
+// dequalifyTypes strips the "types." package qualifier from all references,
+// since when inlined everything lives in the same package.
 func dequalifyTypes(code string) string {
-	for _, r := range qualifierReplacements {
-		code = strings.ReplaceAll(code, r.old, r.new)
-	}
-	return code
+	return typesQualifierRe.ReplaceAllString(code, "$1")
 }
