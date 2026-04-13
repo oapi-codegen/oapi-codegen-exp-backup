@@ -176,14 +176,16 @@ type RequestBodyDescriptor struct {
 	ContentType string // "application/json", "multipart/form-data", etc.
 	Required    bool
 	Schema      *SchemaDescriptor
+	ItemSchema  *SchemaDescriptor // Per-item schema for sequential media types (OpenAPI 3.2)
 
 	// Precomputed for templates
-	NameTag    string // "JSON", "Formdata", "Multipart", "Text", etc.
-	GoTypeName string // "{OperationID}JSONBody", etc.
-	FuncSuffix string // "", "WithJSONBody", "WithFormBody" (empty for default)
-	IsDefault     bool // Is this the default body type?
-	IsFormEncoded bool // Is this application/x-www-form-urlencoded?
-	GenerateTyped bool // Generate typed methods for this body (based on content-types config)
+	NameTag       string // "JSON", "Formdata", "Multipart", "Text", etc.
+	GoTypeName    string // "{OperationID}JSONBody", etc.
+	FuncSuffix    string // "", "WithJSONBody", "WithFormBody" (empty for default)
+	IsDefault     bool   // Is this the default body type?
+	IsFormEncoded bool   // Is this application/x-www-form-urlencoded?
+	IsSequential  bool   // Is this a streaming content types (SSE, NDJSON, etc.)?
+	GenerateTyped bool   // Generate typed methods for this body (based on content-types config)
 
 	// Encoding options for form data
 	Encoding map[string]RequestBodyEncoding
@@ -224,10 +226,12 @@ func (r *ResponseDescriptor) HasFixedStatusCode() bool {
 
 // ResponseContentDescriptor describes response content for a content type.
 type ResponseContentDescriptor struct {
-	ContentType string
-	Schema      *SchemaDescriptor
-	NameTag     string // "JSON", "XML", etc.
-	IsJSON      bool
+	ContentType  string
+	Schema       *SchemaDescriptor
+	ItemSchema   *SchemaDescriptor // Per-item schema for sequential media types (OpenAPI 3.2)
+	NameTag      string            // "JSON", "XML", etc.
+	IsJSON       bool
+	IsSequential bool // True for streaming content types (SSE, NDJSON, etc.)
 }
 
 // ResponseHeaderDescriptor describes a response header.
@@ -293,6 +297,20 @@ func IsMediaTypeJSON(contentType string) bool {
 		return true
 	}
 	if strings.Contains(contentType, "json") {
+		return true
+	}
+	return false
+}
+
+// IsSequentialMediaType returns true if the content type represents a sequential/streaming
+// media type that delivers items one at a time (SSE, NDJSON, JSONL, JSON-seq, multipart/mixed).
+func IsSequentialMediaType(contentType string) bool {
+	switch contentType {
+	case "text/event-stream",
+		"application/jsonl",
+		"application/x-ndjson",
+		"application/json-seq",
+		"multipart/mixed":
 		return true
 	}
 	return false

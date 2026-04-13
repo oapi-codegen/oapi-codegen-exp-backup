@@ -312,6 +312,11 @@ func (g *operationGatherer) gatherRequestBodies(operationID string, bodyRef *v3.
 			schemaDesc = schemaProxyToDescriptor(mediaType.Schema)
 		}
 
+		var itemSchemaDesc *SchemaDescriptor
+		if mediaType.ItemSchema != nil {
+			itemSchemaDesc = schemaProxyToDescriptor(mediaType.ItemSchema)
+		}
+
 		funcSuffix := ""
 		if !isDefault && nameTag != "" {
 			funcSuffix = "With" + nameTag + "Body"
@@ -337,12 +342,14 @@ func (g *operationGatherer) gatherRequestBodies(operationID string, bodyRef *v3.
 			ContentType: contentType,
 			Required:    bodyRequired,
 			Schema:      schemaDesc,
+			ItemSchema:  itemSchemaDesc,
 
 			NameTag:       nameTag,
 			GoTypeName:    goTypeName,
 			FuncSuffix:    funcSuffix,
 			IsDefault:     isDefault,
 			IsFormEncoded: contentType == "application/x-www-form-urlencoded",
+			IsSequential:  IsSequentialMediaType(contentType),
 			GenerateTyped: generateTyped,
 		}
 
@@ -434,13 +441,20 @@ func (g *operationGatherer) gatherResponse(operationID, statusCode string, resp 
 				schemaDesc = schemaProxyToDescriptor(mediaType.Schema)
 			}
 
+			var itemSchemaDesc *SchemaDescriptor
+			if mediaType.ItemSchema != nil {
+				itemSchemaDesc = schemaProxyToDescriptor(mediaType.ItemSchema)
+			}
+
 			nameTag := ComputeBodyNameTag(contentType)
 
 			contents = append(contents, &ResponseContentDescriptor{
-				ContentType: contentType,
-				Schema:      schemaDesc,
-				NameTag:     nameTag,
-				IsJSON:      IsMediaTypeJSON(contentType),
+				ContentType:  contentType,
+				Schema:       schemaDesc,
+				ItemSchema:   itemSchemaDesc,
+				NameTag:      nameTag,
+				IsJSON:       IsMediaTypeJSON(contentType),
+				IsSequential: IsSequentialMediaType(contentType),
 			})
 		}
 	}

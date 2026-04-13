@@ -164,6 +164,10 @@ func DefaultContentTypes() []string {
 		`^application/json$`,
 		`^application/.*\+json$`,
 		`^application/x-www-form-urlencoded$`,
+		`^text/event-stream$`,
+		`^application/jsonl$`,
+		`^application/x-ndjson$`,
+		`^application/json-seq$`,
 	}
 }
 
