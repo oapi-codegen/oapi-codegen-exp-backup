@@ -12,11 +12,18 @@ What is working:
   - All model, client and server generation as in earlier versions.
   - We have added Webhook and Callback support, please see `./examples`, which contains the ubiquitous OpenAPI pet shop implemented in all supported servers
     and examples of webhooks and callbacks implemented on top of the `http.ServeMux` server, with no additional imports.
-  - Model generation of `allOf`, `anyOf`, `oneOf` is much more robust, since these were a source of many problems in earlier versions.
   - Echo V5 support has been added (Go 1.25 required)
-
+  - The `runtime` has changed a lot. By default, we generate all the needed runtime
+    functions into your generated code. You can, optionally, generate your own runtime
+    package locally, to avoid duplication between multiple openapi specifications. This
+    was done because the version pinning between runtime and the codegen was exceedingly
+    annoying, so now, the runtime is embedded into the generator itself, and there is
+    no versioning issue.
+  
 What is missing:
-  - We have not yet created any runtime code like request validation middleware.
+  - Middleware, this is for someone else to solve.
+  - Good documentation. You'll have to read over the config file code to see how
+    to configure.
 
 ## Differences in V3
 
@@ -24,106 +31,22 @@ V3 is a brand new implementation, and may (will) contain new bugs, but also stri
 conformance tests against specifications in old Issues, and we're looking pretty good! Please try this out, and if it failes in some way, please
 file Issues.
 
-### Aggregate Schemas
+### Normalized extension names
 
-V3 implements `oneOf`, `anyOf`, `allOf`  differently. Our prior versions had pretty good handling for `allOf`, where we merge all the constituent schemas
-into a schema object that contains all the fields of the originals. It makes sense, since this is composition.
+V3 normalizes all extension names under the `x-oapi-codegen-` prefix. The old names are still accepted for backwards compatibility.
 
-`oneOf` and `anyOf` were handled by deferred parsing, where the JSON was captured into `json.RawMessage` and helper functions were created on each
-type to parse the JSON as any constituent type with the user's help.
-
-Given the following schemas:
-
-```yaml
-components:
-  schemas:
-    Cat:
-      type: object
-      properties:
-        name:
-          type: string
-        color:
-          type: string
-    Dog:
-      type: object
-      properties:
-        name:
-          type: string
-        color:
-          type: string
-    Fish:
-      type: object
-      properties:
-        species:
-          type: string
-        isSaltwater:
-          type: boolean
-    NamedPet:
-      anyOf:
-        - $ref: '#/components/schemas/Cat'
-        - $ref: '#/components/schemas/Dog'
-    SpecificPet:
-      oneOf:
-        - $ref: '#/components/schemas/Cat'
-        - $ref: '#/components/schemas/Dog'
-        - $ref: '#/components/schemas/Fish'
-```
-
-#### V2 output
-
-V2 generates both `NamedPet` (anyOf) and `SpecificPet` (oneOf) identically as opaque wrappers around `json.RawMessage`:
-
-```go
-type NamedPet struct {
-	union json.RawMessage
-}
-
-type SpecificPet struct {
-	union json.RawMessage
-}
-```
-
-The actual variant types are invisible at the struct level. To access the underlying data, the user must call generated helper methods:
-
-```go
-// NamedPet (anyOf) helpers
-func (t NamedPet) AsCat() (Cat, error)
-func (t *NamedPet) FromCat(v Cat) error
-// <snip>
-
-// SpecificPet (oneOf) helpers
-
-func (t SpecificPet) AsFish() (Fish, error)
-func (t *SpecificPet) FromFish(v Fish) error
-func (t *SpecificPet) MergeFish(v Fish) error
-// <snip>
-```
-
-Note that `anyOf` and `oneOf` produce identical types and method signatures; there is no semantic difference in the generated code.
-
-#### V3 output
-
-V3 generates structs with exported pointer fields for each variant, making the union members visible at the type level. Crucially, `anyOf` and `oneOf` now have different marshal/unmarshal semantics.
-
-**`anyOf` (NamedPet)** — `MarshalJSON` merges all non-nil variants into a single JSON object. `UnmarshalJSON` tries every variant and keeps whichever succeed:
-
-```go
-type NamedPet struct {
-	Cat *Cat
-	Dog *Dog
-}
-
-```
-
-**`oneOf` (SpecificPet)** — `MarshalJSON` returns an error unless exactly one field is non-nil. `UnmarshalJSON` returns an error unless the JSON matches exactly one variant:
-
-```go
-type SpecificPet struct {
-	Cat  *Cat
-	Dog  *Dog
-	Fish *Fish
-}
-```
+| V2 | This version                           | Scope | Purpose |
+|---|----------------------------------------|---|---|
+| `x-go-type` + `x-go-type-import` | `x-oapi-codegen-type-override`         | Schema, Property | Use an external Go type instead of generating one. V3 combines type and import into a single value: `"TypeName;import/path"`. |
+| `x-go-name` | `x-oapi-codegen-name-override`         | Property | Override the generated Go field name. |
+| `x-go-type-name` | `x-oapi-codegen-type-name-override`    | Schema | Override the generated Go type name. |
+| `x-go-type-skip-optional-pointer` | `x-oapi-codegen-skip-optional-pointer` | Property | Don't wrap optional fields in a pointer. |
+| `x-go-json-ignore` | `x-oapi-codegen-json-ignore`           | Property | Exclude the field from JSON (`json:"-"`). |
+| `x-omitempty` | `x-oapi-codegen-omitempty`             | Property | Explicitly control the `omitempty` JSON tag. |
+| `x-omitzero` | `x-oapi-codegen-omitzero`              | Property | Add `omitzero` to the JSON tag (Go 1.24+ `encoding/json/v2`). |
+| `x-enum-varnames` / `x-enumNames` | `x-oapi-codegen-enum-varnames`         | Schema (enum) | Override generated enum constant names. |
+| `x-deprecated-reason` | `x-oapi-codegen-deprecated-reason`     | Schema, Operation | Provide a deprecation reason for documentation. |
+| `x-order` | `x-oapi-codegen-order`                 | Property | Control field ordering in generated structs. |
 
 ### OpenAPI V3.1 Feature Support
 
@@ -151,6 +74,11 @@ audit requirements. V3 embeds all necessary helper functions and helper types in
 handle arbitrary parameters, but rather very specific functions for each kind of parameter, and we call the correct little helper versus a generic
 runtime helper.
 
+We still use the code generator to produce a pre-generated `runtime` package, which you are
+welcome to use. It will always be consistent with the code generated with the corresponding
+oapi-codegen. If you have lots of OpenAPI specs locally, you can also generate the runtime
+package, as we do, in your own code to avoid bloat.
+
 ### Models now support default values configured in the spec
 
 Every model which we generate supports an `ApplyDefaults()` function. It recursively applies defaults on
@@ -160,7 +88,7 @@ unrelated to what we're doing. Please let me know if this feature is causing tro
 
 ## Installation
 
-Go 1.24 is required, install like so:
+Go 1.25 is required, install like so:
 
     go get -tool github.com/oapi-codegen/oapi-codegen-exp/experimental/cmd/oapi-codegen@latest
 
