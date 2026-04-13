@@ -1058,21 +1058,23 @@ func generateUnionTypeCommon(gen *TypeGenerator, desc *SchemaDescriptor, isOneOf
 		Discriminator: desc.Discriminator,
 		HelperPrefix:  gen.helperPrefix(),
 		TagGen:        gen.tagGenerator,
+		Converter:     gen.converter,
 	}
 
-	code := GenerateUnionType(cfg)
-	code += "\n" + GenerateUnionAccessors(cfg)
-	if discCode := GenerateUnionDiscriminator(cfg); discCode != "" {
+	if desc.Discriminator != nil {
 		gen.AddImport("errors")
-		code += "\n" + discCode
 	}
-	code += "\n" + GenerateUnionMarshalUnmarshal(cfg)
-	if len(cfg.FixedFields) > 0 {
+	if len(fixedFields) > 0 {
 		gen.AddImport("fmt")
 	}
 	gen.NeedHelper("json_merge")
-	code += "\n" + GenerateUnionApplyDefaults(desc.ShortName)
 
+	code, err := GenerateUnionCode(cfg)
+	if err != nil {
+		// Fall back to empty string on template error — the build will fail
+		// with a clear error from go generate rather than a panic here.
+		return fmt.Sprintf("// ERROR generating union type %s: %v\n", desc.ShortName, err)
+	}
 	return code
 }
 

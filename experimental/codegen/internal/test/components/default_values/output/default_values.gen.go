@@ -171,6 +171,7 @@ func (s *AnyOfWithDefaults) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfWithDefaults/properties/value
+
 type AnyOfWithDefaultsValue struct {
 	union json.RawMessage
 }
@@ -275,6 +276,7 @@ func (s *OneOfWithDefaults) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfWithDefaults/properties/variant
+
 type OneOfWithDefaultsVariant struct {
 	union json.RawMessage
 }

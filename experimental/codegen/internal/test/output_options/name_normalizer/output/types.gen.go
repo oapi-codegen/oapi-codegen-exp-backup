@@ -39,6 +39,7 @@ func (s *Error) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOf2things
+
 // Notice that the `things` is not capitalised
 type OneOf2Things struct {
 	union json.RawMessage

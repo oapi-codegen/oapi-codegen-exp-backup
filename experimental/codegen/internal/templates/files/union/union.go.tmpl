@@ -1,0 +1,163 @@
+{{/* Union type template — generates json.RawMessage-based union with As/From/Merge accessors */}}
+
+{{define "union_type"}}
+{{- if .Doc}}
+{{- range $line := splitLines .Doc}}
+// {{$line}}
+{{- end}}
+{{- end}}
+type {{.TypeName}} struct {
+{{- range .FixedFields}}
+	{{- if .Doc}}
+	// {{.Doc}}
+	{{- end}}
+	{{.Name}} {{.Type}} {{.Tag}}
+{{- end}}
+	union json.RawMessage
+}
+{{end}}
+
+{{define "union_accessors"}}
+{{- $typeName := .TypeName}}
+{{- $helperPrefix := .HelperPrefix}}
+{{- range .Members}}
+
+// As{{.MethodName}} returns the union data inside the {{$typeName}} as a {{.TypeName}}.
+func (t {{$typeName}}) As{{.MethodName}}() ({{.TypeName}}, error) {
+	var body {{.TypeName}}
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// From{{.MethodName}} overwrites any union data inside the {{$typeName}} as the provided {{.TypeName}}.
+func (t *{{$typeName}}) From{{.MethodName}}(v {{.TypeName}}) error {
+{{- if .DiscriminatorAutoSet}}
+	{{.DiscriminatorAutoSet}}
+{{- end}}
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// Merge{{.MethodName}} performs a merge with any union data inside the {{$typeName}}, using the provided {{.TypeName}}.
+func (t *{{$typeName}}) Merge{{.MethodName}}(v {{.TypeName}}) error {
+{{- if .DiscriminatorAutoSet}}
+	{{.DiscriminatorAutoSet}}
+{{- end}}
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	merged, err := {{$helperPrefix}}JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+{{- end}}
+{{end}}
+
+{{define "union_discriminator"}}
+{{- if .Discriminator}}
+
+// Discriminator extracts the discriminator property value from the union data.
+func (t {{.TypeName}}) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"{{.Discriminator.PropertyName}}"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+{{- if .DiscriminatorEntries}}
+
+// ValueByDiscriminator returns the union member based on the discriminator value.
+func (t {{.TypeName}}) ValueByDiscriminator() (any, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+{{- range .DiscriminatorEntries}}
+	case "{{.Value}}":
+		return t.As{{.MethodName}}()
+{{- end}}
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+{{- end}}
+{{- end}}
+{{end}}
+
+{{define "union_marshal_simple"}}
+
+func (t {{.TypeName}}) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *{{.TypeName}}) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+{{end}}
+
+{{define "union_marshal_fixed_fields"}}
+
+func (t {{.TypeName}}) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+{{- range .FixedFields}}
+{{- if .Required}}
+	object["{{.JSONName}}"], err = json.Marshal(t.{{.Name}})
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling '{{.JSONName}}': %w", err)
+	}
+{{- else}}
+	if t.{{.Name}} != nil {
+		object["{{.JSONName}}"], err = json.Marshal(t.{{.Name}})
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '{{.JSONName}}': %w", err)
+		}
+	}
+{{- end}}
+{{- end}}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *{{.TypeName}}) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+{{- range .FixedFields}}
+	if raw, found := object["{{.JSONName}}"]; found {
+		err = json.Unmarshal(raw, &t.{{.Name}})
+		if err != nil {
+			return fmt.Errorf("error reading '{{.JSONName}}': %w", err)
+		}
+	}
+{{- end}}
+	return err
+}
+{{end}}
+
+{{define "union_apply_defaults"}}
+
+// ApplyDefaults sets default values for fields that are nil.
+func (t *{{.TypeName}}) ApplyDefaults() {
+}
+{{end}}

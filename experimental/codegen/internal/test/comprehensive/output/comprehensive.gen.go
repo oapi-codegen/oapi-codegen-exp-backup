@@ -437,6 +437,7 @@ func (s *AllOfInlineOnly) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfPrimitives
+
 type AnyOfPrimitives struct {
 	union json.RawMessage
 }
@@ -506,6 +507,7 @@ func (t *AnyOfPrimitives) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfObjects
+
 type AnyOfObjects struct {
 	union json.RawMessage
 }
@@ -575,6 +577,7 @@ func (t *AnyOfObjects) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfMixed
+
 type AnyOfMixed struct {
 	union json.RawMessage
 }
@@ -690,6 +693,7 @@ func (s *ObjectWithAnyOfProperty) ApplyDefaults() {
 }
 
 // #/components/schemas/ObjectWithAnyOfProperty/properties/value
+
 type ObjectWithAnyOfPropertyValue struct {
 	union json.RawMessage
 }
@@ -787,6 +791,7 @@ func (t *ObjectWithAnyOfPropertyValue) ApplyDefaults() {
 type ArrayOfAnyOf = []ArrayOfAnyOfItem
 
 // #/components/schemas/ArrayOfAnyOf/items
+
 type ArrayOfAnyOfItem struct {
 	union json.RawMessage
 }
@@ -856,6 +861,7 @@ func (t *ArrayOfAnyOfItem) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfSimple
+
 type OneOfSimple struct {
 	union json.RawMessage
 }
@@ -925,6 +931,7 @@ func (t *OneOfSimple) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfWithDiscriminator
+
 type OneOfWithDiscriminator struct {
 	union json.RawMessage
 }
@@ -1023,6 +1030,7 @@ func (t *OneOfWithDiscriminator) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfWithDiscriminatorMapping
+
 type OneOfWithDiscriminatorMapping struct {
 	union json.RawMessage
 }
@@ -1143,6 +1151,7 @@ func (s *Dog) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfInline
+
 type OneOfInline struct {
 	union json.RawMessage
 }
@@ -1230,6 +1239,7 @@ func (s *OneOfInlineOneOf1) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfPrimitives
+
 type OneOfPrimitives struct {
 	union json.RawMessage
 }
@@ -1334,6 +1344,7 @@ func (s *ObjectWithOneOfProperty) ApplyDefaults() {
 }
 
 // #/components/schemas/ObjectWithOneOfProperty/properties/variant
+
 type ObjectWithOneOfPropertyVariant struct {
 	union json.RawMessage
 }
@@ -1499,6 +1510,7 @@ func (s *AllOfWithOneOf) ApplyDefaults() {
 }
 
 // #/components/schemas/AllOfWithOneOf/allOf/1
+
 type AllOfWithOneOfAllOf1 struct {
 	union json.RawMessage
 }
@@ -1597,6 +1609,7 @@ func (t *AllOfWithOneOfAllOf1) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfWithAllOf
+
 type OneOfWithAllOf struct {
 	union json.RawMessage
 }
@@ -1714,6 +1727,7 @@ func (s *LinkedListNode) ApplyDefaults() {
 }
 
 // #/components/schemas/RecursiveOneOf
+
 type RecursiveOneOf struct {
 	union json.RawMessage
 }
@@ -1891,6 +1905,7 @@ func (s *ComplexNested) ApplyDefaults() {
 type ComplexNestedMetadata = map[string]any
 
 // #/components/schemas/ComplexNested/properties/metadata/additionalProperties
+
 type ComplexNestedMetadataValue struct {
 	union json.RawMessage
 }
@@ -1999,6 +2014,7 @@ func (s *ComplexNestedItemItem) ApplyDefaults() {
 }
 
 // #/components/schemas/ComplexNested/properties/config
+
 type ComplexNestedConfig struct {
 	union json.RawMessage
 }

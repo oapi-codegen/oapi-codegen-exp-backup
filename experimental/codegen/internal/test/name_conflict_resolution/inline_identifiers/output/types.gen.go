@@ -25,6 +25,7 @@ func (s *GetSomethingJSONResponse) ApplyDefaults() {
 type GetSomething200ResponseJSON1 = []GetSomething200ResponseJSON2
 
 // #/paths//something/get/responses/200/content/application/json/schema/properties/results/items
+
 type GetSomething200ResponseJSON2 struct {
 	union json.RawMessage
 }

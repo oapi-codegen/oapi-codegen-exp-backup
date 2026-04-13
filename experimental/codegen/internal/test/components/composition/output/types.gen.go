@@ -374,6 +374,7 @@ type AdditionalPropertiesObject6Item = map[string]any
 type AdditionalPropertiesObject7 = map[string]any
 
 // #/components/schemas/OneOfObject1
+
 // oneOf with references and no discriminator
 type OneOfObject1 struct {
 	union json.RawMessage
@@ -469,6 +470,7 @@ func (t *OneOfObject1) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject2
+
 // oneOf with inline elements
 type OneOfObject2 struct {
 	union json.RawMessage
@@ -583,6 +585,7 @@ func (s *OneOfObject3) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject3/properties/union
+
 type OneOfObject3Union struct {
 	union json.RawMessage
 }
@@ -677,6 +680,7 @@ func (t *OneOfObject3Union) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject4
+
 // oneOf plus fixed type - custom marshaling/unmarshaling
 type OneOfObject4 struct {
 	FixedProperty *string `form:"fixedProperty,omitempty" json:"fixedProperty,omitempty"`
@@ -804,6 +808,7 @@ func (t *OneOfObject4) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject5
+
 // oneOf with discriminator but no mapping
 type OneOfObject5 struct {
 	union json.RawMessage
@@ -903,6 +908,7 @@ func (t *OneOfObject5) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject6
+
 // oneOf with discriminator and mapping
 type OneOfObject6 struct {
 	union json.RawMessage
@@ -1002,6 +1008,7 @@ func (t *OneOfObject6) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject61
+
 // oneOf with discriminator and partial mapping
 type OneOfObject61 struct {
 	union json.RawMessage
@@ -1095,6 +1102,7 @@ func (t *OneOfObject61) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject62
+
 // oneOf with snake_case discriminator and partial snake_case mapping
 type OneOfObject62 struct {
 	union json.RawMessage
@@ -1192,6 +1200,7 @@ func (t *OneOfObject62) ApplyDefaults() {
 type OneOfObject7 = []OneOfObject7Item
 
 // #/components/schemas/OneOfObject7/items
+
 type OneOfObject7Item struct {
 	union json.RawMessage
 }
@@ -1261,6 +1270,7 @@ func (t *OneOfObject7Item) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject8
+
 // oneOf with fixed properties
 type OneOfObject8 struct {
 	Fixed *string `form:"fixed,omitempty" json:"fixed,omitempty"`
@@ -1363,6 +1373,7 @@ func (t *OneOfObject8) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject9
+
 // oneOf with fixed discriminator
 type OneOfObject9 struct {
 	Type  string `form:"type" json:"type"`
@@ -1492,6 +1503,7 @@ func (t *OneOfObject9) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject10
+
 // fixed properties, variable required - will compile, but not much sense
 type OneOfObject10 struct {
 	One   *string `form:"one,omitempty" json:"one,omitempty"`
@@ -1624,6 +1636,7 @@ func (t *OneOfObject10) ApplyDefaults() {
 type OneOfObject11 = map[string]any
 
 // #/components/schemas/OneOfObject11/additionalProperties
+
 type OneOfObject11Value struct {
 	union json.RawMessage
 }
@@ -1782,6 +1795,7 @@ func (s *OneOfObject12) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject12/allOf/0
+
 type OneOfObject12AllOf0 struct {
 	union json.RawMessage
 }
@@ -1851,6 +1865,7 @@ func (t *OneOfObject12AllOf0) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject12/allOf/1
+
 type OneOfObject12AllOf1 struct {
 	union json.RawMessage
 }
@@ -1920,6 +1935,7 @@ func (t *OneOfObject12AllOf1) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfObject13
+
 // oneOf with fixed discriminator and other fields allowed
 type OneOfObject13 struct {
 	Type  string `form:"type" json:"type"`
@@ -2049,6 +2065,7 @@ func (t *OneOfObject13) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfObject1
+
 // simple anyOf case
 type AnyOfObject1 struct {
 	union json.RawMessage

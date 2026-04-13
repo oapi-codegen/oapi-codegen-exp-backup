@@ -251,6 +251,7 @@ func (s *ListEntitiesJSONResponse) ApplyDefaults() {
 type GetEntities200Response = []Widget
 
 // #/paths//resources/{id}/patch/responses/200/content/application/json-patch+json/schema
+
 type PatchResourceJSONResponse2001 struct {
 	union json.RawMessage
 }
@@ -351,6 +352,7 @@ type PatchResourcesID200ResponseJSONOneOf11 = []Resource
 type PatchResourcesID200ResponseJSONOneOf21 = Nullable[string]
 
 // #/paths//resources/{id}/patch/responses/200/content/application/json-patch-query+json/schema
+
 type PatchResourceJSONResponse2002 struct {
 	union json.RawMessage
 }
