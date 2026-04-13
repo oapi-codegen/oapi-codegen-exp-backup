@@ -2,9 +2,10 @@ package codegen
 
 import (
 	"fmt"
-	"sort"
+	"strings"
 
-	"github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/templates"
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/runtimeextract"
+	runtime "github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/runtime"
 )
 
 // RuntimeOutput holds the generated Go source code for each runtime sub-package.
@@ -23,17 +24,17 @@ func GenerateRuntime(baseImportPath string) (*RuntimeOutput, error) {
 		return nil, fmt.Errorf("base import path is required")
 	}
 
-	typesCode, err := generateRuntimeTypes()
+	typesCode, err := generateRuntimePackage("types", "types", baseImportPath)
 	if err != nil {
 		return nil, fmt.Errorf("generating runtime types: %w", err)
 	}
 
-	paramsCode, err := generateRuntimeParams(baseImportPath + "/types")
+	paramsCode, err := generateRuntimePackage("params", "params", baseImportPath)
 	if err != nil {
 		return nil, fmt.Errorf("generating runtime params: %w", err)
 	}
 
-	helpersCode, err := generateRuntimeHelpers()
+	helpersCode, err := generateRuntimePackage("helpers", "helpers", baseImportPath)
 	if err != nil {
 		return nil, fmt.Errorf("generating runtime helpers: %w", err)
 	}
@@ -45,96 +46,26 @@ func GenerateRuntime(baseImportPath string) (*RuntimeOutput, error) {
 	}, nil
 }
 
-// generateRuntimeTypes produces the types sub-package: Date, Email, UUID, File, Nullable.
-func generateRuntimeTypes() (string, error) {
-	ctx := NewCodegenContext()
-
-	// Mark ALL custom types as needed.
-	for name := range templates.TypeTemplates {
-		ctx.NeedCustomType(name)
-	}
-
-	output := NewOutput("types")
-
-	// Emit custom type templates in sorted order for deterministic output.
-	typeNames := make([]string, 0, len(templates.TypeTemplates))
-	for name := range templates.TypeTemplates {
-		typeNames = append(typeNames, name)
-	}
-	sort.Strings(typeNames)
-
-	for _, name := range typeNames {
-		def := templates.TypeTemplates[name]
-		templateName := def.Template
-		parts := splitTemplatePath(templateName)
-		typeCode := ctx.loadAndRegisterCustomType(parts)
-		if typeCode != "" {
-			output.AddType(typeCode)
-		}
-	}
-
-	output.AddImports(ctx.Imports())
-	return output.Format()
-}
-
-// generateRuntimeParams produces the params sub-package: style/bind functions
-// and shared helpers (ParamLocation, primitiveToString, BindStringToObject, etc.).
-// typesImportPath is the import path for the types sub-package so that
-// Date/DateFormat references can be qualified with "types.".
-func generateRuntimeParams(typesImportPath string) (string, error) {
-	ctx := NewCodegenContext()
-
-	// Mark ALL param style/bind combinations as needed.
-	for key := range templates.ParamTemplates {
-		ctx.params[key] = true
-	}
-
-	output := NewOutput("params")
-
-	// Emit param functions with typesPrefix = "types." so Date references
-	// are qualified as types.Date, types.DateFormat.
-	paramFuncs, err := generateParamFunctionsFromContext(ctx, "types.")
+// generateRuntimePackage produces a standalone Go source file for one runtime
+// sub-package by extracting annotated code from the embedded runtime sources.
+func generateRuntimePackage(dir, packageName, baseImportPath string) (string, error) {
+	code, imports, err := runtimeextract.ExtractPackage(runtime.SourceFS, dir)
 	if err != nil {
-		return "", fmt.Errorf("generating param functions: %w", err)
-	}
-	if paramFuncs != "" {
-		output.AddType(paramFuncs)
+		return "", fmt.Errorf("extracting %s: %w", dir, err)
 	}
 
-	output.AddImports(ctx.Imports())
-	// Add the types sub-package import for Date/DateFormat references.
-	output.AddImport(typesImportPath, "")
+	output := NewOutput(packageName)
+	output.AddType(code)
+
+	for _, imp := range imports {
+		path := imp.Path
+		// Rewrite internal runtime import paths to the target base path.
+		// e.g., ".../codegen/internal/runtime/types" → "baseImportPath/types"
+		if strings.HasPrefix(path, runtimeextract.RuntimeModulePrefix) {
+			path = baseImportPath + "/" + strings.TrimPrefix(path, runtimeextract.RuntimeModulePrefix)
+		}
+		output.AddImport(path, imp.Alias)
+	}
+
 	return output.Format()
-}
-
-// generateRuntimeHelpers produces the helpers sub-package: MarshalForm.
-func generateRuntimeHelpers() (string, error) {
-	ctx := NewCodegenContext()
-
-	ctx.NeedHelper("marshal_form")
-
-	output := NewOutput("helpers")
-
-	for _, helperName := range ctx.RequiredHelpers() {
-		helperCode, err := generateHelper(helperName, ctx)
-		if err != nil {
-			return "", fmt.Errorf("generating helper %s: %w", helperName, err)
-		}
-		if helperCode != "" {
-			output.AddType(helperCode)
-		}
-	}
-
-	output.AddImports(ctx.Imports())
-	return output.Format()
-}
-
-// splitTemplatePath extracts the filename from a template path like "types/date.tmpl".
-func splitTemplatePath(path string) string {
-	for i := len(path) - 1; i >= 0; i-- {
-		if path[i] == '/' {
-			return path[i+1:]
-		}
-	}
-	return path
 }

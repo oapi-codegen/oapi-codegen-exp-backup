@@ -1,0 +1,15 @@
+package params
+
+//oapi-runtime:function params/BindPipeDelimitedExplodeParam
+
+import (
+	"net/url"
+)
+
+// BindPipeDelimitedExplodeParam binds a pipeDelimited-style parameter with explode.
+// When exploded, arrays come as multiple query params (same as form explode).
+// Arrays: ?param=a&param=b -> []string{"a", "b"}
+func BindPipeDelimitedExplodeParam(paramName string, required bool, queryParams url.Values, dest any) error {
+	// Exploded pipe-delimited is same as exploded form
+	return BindFormExplodeParam(paramName, required, queryParams, dest)
+}

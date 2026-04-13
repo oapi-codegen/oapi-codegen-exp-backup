@@ -1,0 +1,15 @@
+package params
+
+//oapi-runtime:function params/BindSpaceDelimitedExplodeParam
+
+import (
+	"net/url"
+)
+
+// BindSpaceDelimitedExplodeParam binds a spaceDelimited-style parameter with explode.
+// When exploded, arrays come as multiple query params (same as form explode).
+// Arrays: ?param=a&param=b -> []string{"a", "b"}
+func BindSpaceDelimitedExplodeParam(paramName string, required bool, queryParams url.Values, dest any) error {
+	// Exploded space-delimited is same as exploded form
+	return BindFormExplodeParam(paramName, required, queryParams, dest)
+}

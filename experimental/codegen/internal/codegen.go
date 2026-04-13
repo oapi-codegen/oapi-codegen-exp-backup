@@ -4,12 +4,15 @@ package codegen
 import (
 	"fmt"
 	"strings"
-	"text/template"
 
 	"github.com/pb33f/libopenapi"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
+	"golang.org/x/tools/imports"
 
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/dce"
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/runtimeextract"
 	"github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/templates"
+	runtime "github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/runtime"
 )
 
 // Generate produces Go code from the parsed OpenAPI document.
@@ -150,8 +153,6 @@ func Generate(doc libopenapi.Document, specData []byte, cfg Configuration) (stri
 			ctx.AddImportAlias(cfg.Generation.ModelsPackage.Path, cfg.Generation.ModelsPackage.Alias)
 		}
 
-		// Register form helper if any operation has form-encoded bodies
-		ctx.NeedFormHelper(ops)
 	}
 
 	// Track whether shared error types have been generated to avoid duplication.
@@ -228,7 +229,6 @@ func Generate(doc libopenapi.Document, specData []byte, cfg Configuration) (stri
 				ctx.AddImportAlias(cfg.Generation.ModelsPackage.Path, cfg.Generation.ModelsPackage.Alias)
 			}
 
-			ctx.NeedFormHelper(webhookOps)
 		}
 	}
 
@@ -258,7 +258,6 @@ func Generate(doc libopenapi.Document, specData []byte, cfg Configuration) (stri
 				ctx.AddImportAlias(cfg.Generation.ModelsPackage.Path, cfg.Generation.ModelsPackage.Alias)
 			}
 
-			ctx.NeedFormHelper(callbackOps)
 		}
 	}
 
@@ -358,44 +357,23 @@ func Generate(doc libopenapi.Document, specData []byte, cfg Configuration) (stri
 
 	if cfg.Generation.RuntimePackage != nil {
 		// Runtime package is configured — don't embed helpers, import them.
-		// Add imports for whichever sub-packages are actually needed.
+		// Always add all three sub-package imports; the Go compiler and goimports
+		// will strip any that end up unused.
 		ctx.AddImportAlias(cfg.Generation.RuntimePackage.TypesImport(), "oapiCodegenTypesPkg")
-		if ctx.HasAnyParams() {
-			ctx.AddImportAlias(cfg.Generation.RuntimePackage.ParamsImport(), "oapiCodegenParamsPkg")
-		}
-		if len(ctx.RequiredHelpers()) > 0 {
-			ctx.AddImportAlias(cfg.Generation.RuntimePackage.HelpersImport(), "oapiCodegenHelpersPkg")
-		}
+		ctx.AddImportAlias(cfg.Generation.RuntimePackage.ParamsImport(), "oapiCodegenParamsPkg")
+		ctx.AddImportAlias(cfg.Generation.RuntimePackage.HelpersImport(), "oapiCodegenHelpersPkg")
 	} else {
-		// Resolve param template dependencies first — this may register
-		// additional custom types (e.g., Date) that need to be emitted.
-		ctx.GetRequiredParamTemplates()
-
-		// Emit custom type templates (Date, Email, UUID, File, Nullable, etc.)
-		for _, templateName := range ctx.RequiredCustomTypes() {
-			typeCode := ctx.loadAndRegisterCustomType(templateName)
-			if typeCode != "" {
-				output.AddType(typeCode)
-			}
-		}
-
-		// Emit param functions (typesPrefix is empty when embedded — Date is in same package)
-		paramFuncs, err := generateParamFunctionsFromContext(ctx, "")
+		// Inline mode: emit all runtime code, DCE will remove unused declarations.
+		runtimeCode, runtimeImports, err := runtimeextract.ExtractAllInline(runtime.SourceFS)
 		if err != nil {
-			return "", fmt.Errorf("generating param functions: %w", err)
+			return "", fmt.Errorf("extracting runtime code: %w", err)
 		}
-		if paramFuncs != "" {
-			output.AddType(paramFuncs)
-		}
-
-		// Emit helper templates (e.g., marshal_form)
-		for _, helperName := range ctx.RequiredHelpers() {
-			helperCode, err := generateHelper(helperName, ctx)
-			if err != nil {
-				return "", fmt.Errorf("generating helper %s: %w", helperName, err)
-			}
-			if helperCode != "" {
-				output.AddType(helperCode)
+		output.AddType(runtimeCode)
+		for _, imp := range runtimeImports {
+			if imp.Alias != "" {
+				ctx.AddImportAlias(imp.Path, imp.Alias)
+			} else {
+				ctx.AddImport(imp.Path)
 			}
 		}
 	}
@@ -404,101 +382,26 @@ func Generate(doc libopenapi.Document, specData []byte, cfg Configuration) (stri
 	// Transfer all imports from ctx to output
 	output.AddImports(ctx.Imports())
 
-	return output.Format()
-}
-
-// generateHelper generates a helper template by name and registers its imports on the context.
-func generateHelper(name string, ctx *CodegenContext) (string, error) {
-	switch name {
-	case "marshal_form":
-		ctx.AddTemplateImports(templates.MarshalFormHelperTemplate.Imports)
-		return generateMarshalFormHelper()
-	case "json_merge":
-		ctx.AddTemplateImports(templates.JSONMergeHelperTemplate.Imports)
-		return generateJSONMergeHelper()
-	default:
-		return "", fmt.Errorf("unknown helper: %s", name)
-	}
-}
-
-// generateMarshalFormHelper generates the marshalForm helper function.
-func generateMarshalFormHelper() (string, error) {
-	tmplInfo := templates.MarshalFormHelperTemplate
-	content, err := templates.TemplateFS.ReadFile("files/" + tmplInfo.Template)
+	formatted, err := output.Format()
 	if err != nil {
-		return "", fmt.Errorf("reading form helper template: %w", err)
+		return "", err
 	}
 
-	tmpl, err := template.New(tmplInfo.Name).Parse(string(content))
-	if err != nil {
-		return "", fmt.Errorf("parsing form helper template: %w", err)
-	}
-
-	var result strings.Builder
-	if err := tmpl.Execute(&result, nil); err != nil {
-		return "", fmt.Errorf("executing form helper template: %w", err)
-	}
-
-	return result.String(), nil
-}
-
-// generateJSONMergeHelper generates the JSONMerge helper function.
-func generateJSONMergeHelper() (string, error) {
-	tmplInfo := templates.JSONMergeHelperTemplate
-	content, err := templates.TemplateFS.ReadFile("files/" + tmplInfo.Template)
-	if err != nil {
-		return "", fmt.Errorf("reading json merge helper template: %w", err)
-	}
-
-	tmpl, err := template.New(tmplInfo.Name).Parse(string(content))
-	if err != nil {
-		return "", fmt.Errorf("parsing json merge helper template: %w", err)
-	}
-
-	var result strings.Builder
-	if err := tmpl.Execute(&result, nil); err != nil {
-		return "", fmt.Errorf("executing json merge helper template: %w", err)
-	}
-
-	return result.String(), nil
-}
-
-// generateParamFunctionsFromContext generates the parameter styling/binding functions based on CodegenContext usage.
-// typesPrefix is prepended to Date/DateFormat references in param templates; empty when embedded.
-func generateParamFunctionsFromContext(ctx *CodegenContext, typesPrefix string) (string, error) {
-	if !ctx.HasAnyParams() {
-		return "", nil
-	}
-
-	var result strings.Builder
-
-	requiredTemplates := ctx.GetRequiredParamTemplates()
-
-	for _, tmplInfo := range requiredTemplates {
-		content, err := templates.TemplateFS.ReadFile("files/" + tmplInfo.Template)
+	// Run DCE to remove unused runtime declarations (only relevant in inline mode).
+	if cfg.Generation.RuntimePackage == nil {
+		formatted, err = dce.EliminateDeadCode(formatted)
 		if err != nil {
-			return "", fmt.Errorf("reading param template %s: %w", tmplInfo.Template, err)
+			return "", fmt.Errorf("dead code elimination: %w", err)
 		}
-
-		tmpl, err := template.New(tmplInfo.Name).Funcs(template.FuncMap{
-			"typesPrefix": func() string { return typesPrefix },
-		}).Parse(string(content))
+		// DCE re-prints via go/printer which changes formatting; normalize with goimports.
+		reformatted, err := imports.Process("", []byte(formatted), nil)
 		if err != nil {
-			return "", fmt.Errorf("parsing param template %s: %w", tmplInfo.Template, err)
+			return "", fmt.Errorf("formatting after DCE: %w", err)
 		}
-
-		if err := tmpl.Execute(&result, nil); err != nil {
-			return "", fmt.Errorf("executing param template %s: %w", tmplInfo.Template, err)
-		}
-		result.WriteString("\n")
+		formatted = string(reformatted)
 	}
 
-	// Register param imports on the context
-	for _, imp := range ctx.GetRequiredParamImports() {
-		ctx.AddImportAlias(imp.Path, imp.Alias)
-	}
-
-	return result.String(), nil
+	return formatted, nil
 }
 
 // generateType generates Go code for a single schema descriptor.
@@ -1072,7 +975,6 @@ func generateUnionTypeCommon(gen *TypeGenerator, desc *SchemaDescriptor, isOneOf
 	if len(fixedFields) > 0 {
 		gen.AddImport("fmt")
 	}
-	gen.NeedHelper("json_merge")
 
 	code, err := GenerateUnionCode(cfg)
 	if err != nil {

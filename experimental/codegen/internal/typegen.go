@@ -68,19 +68,9 @@ func (g *TypeGenerator) AddJSONImports() {
 	g.ctx.AddJSONImports()
 }
 
-// AddNullableTemplate adds the nullable type template to the output.
-func (g *TypeGenerator) AddNullableTemplate() {
-	g.ctx.NeedCustomType("nullable")
-}
-
 // Imports returns the collected imports as a map[path]alias.
 func (g *TypeGenerator) Imports() map[string]string {
 	return g.ctx.Imports()
-}
-
-// NeedHelper records that a helper function template is needed (e.g., "json_merge").
-func (g *TypeGenerator) NeedHelper(name string) {
-	g.ctx.NeedHelper(name)
 }
 
 // helperPrefix returns the import prefix for helper functions.
@@ -88,11 +78,6 @@ func (g *TypeGenerator) NeedHelper(name string) {
 // When helpers are embedded, this is "" (functions are in the same package).
 func (g *TypeGenerator) helperPrefix() string {
 	return g.ctx.RuntimeHelpersPrefix()
-}
-
-// addTemplate records that a custom type template is needed.
-func (g *TypeGenerator) addTemplate(templateName string) {
-	g.ctx.NeedCustomType(templateName)
 }
 
 // resolveEnumNames runs the enum pre-pass: collects EnumInfo for all enum schemas,
@@ -252,7 +237,6 @@ func (g *TypeGenerator) goTypeForSchema(schema *base.Schema, desc *SchemaDescrip
 			if g.ctx.RuntimeTypesPrefix() != "" {
 				return g.ctx.RuntimeTypesPrefix() + "Nullable[" + baseType + "]"
 			}
-			g.AddNullableTemplate()
 			return "Nullable[" + baseType + "]"
 		}
 	}
@@ -299,7 +283,6 @@ func (g *TypeGenerator) goTypeForSchema(schema *base.Schema, desc *SchemaDescrip
 		if g.ctx.RuntimeTypesPrefix() != "" {
 			return g.ctx.RuntimeTypesPrefix() + "Nullable[" + baseType + "]"
 		}
-		g.AddNullableTemplate()
 		return "Nullable[" + baseType + "]"
 	}
 
@@ -415,7 +398,6 @@ func (g *TypeGenerator) stringType(schema *base.Schema) string {
 	}
 
 	g.AddImport(spec.Import)
-	g.addTemplate(spec.Template)
 	return spec.Type
 }
 
@@ -538,7 +520,6 @@ func (g *TypeGenerator) GenerateStructFields(desc *SchemaDescriptor) []StructFie
 	}
 
 	var fields []StructField
-	needsNullableImport := false
 
 	for pair := schema.Properties.First(); pair != nil; pair = pair.Next() {
 		propName := pair.Key()
@@ -698,7 +679,6 @@ func (g *TypeGenerator) GenerateStructFields(desc *SchemaDescriptor) []StructFie
 				field.Type = "Nullable[" + propType + "]"
 			}
 			field.Pointer = false
-			needsNullableImport = true
 		} else if !field.Required && !isCollection && !alreadyNullable {
 			// Check for skip optional pointer extension
 			skipPointer := false
@@ -735,10 +715,6 @@ func (g *TypeGenerator) GenerateStructFields(desc *SchemaDescriptor) []StructFie
 		}
 
 		fields = append(fields, field)
-	}
-
-	if needsNullableImport && g.ctx.RuntimeTypesPrefix() == "" {
-		g.AddNullableTemplate()
 	}
 
 	// Sort fields by order if any have explicit ordering

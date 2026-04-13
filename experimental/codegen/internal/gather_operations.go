@@ -190,11 +190,6 @@ func (g *operationGatherer) gatherParameter(param *v3.Parameter) (*ParameterDesc
 		explode = *param.Explode
 	}
 
-	// Record param usage for function generation
-	if g.ctx != nil {
-		g.ctx.NeedParam(style, explode)
-	}
-
 	// Determine encoding mode
 	isStyled := param.Schema != nil
 	isJSON := false

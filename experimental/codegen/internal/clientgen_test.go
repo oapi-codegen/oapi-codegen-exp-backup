@@ -136,15 +136,6 @@ func TestClientGenerator_FormEncoded(t *testing.T) {
 	// Verify form-encoded body methods reference MarshalForm
 	require.Contains(t, clientCode, "MarshalForm(body)")
 
-	// Verify we generate the form helper when needed
-	ctx.NeedFormHelper(ops)
-	formHelper, err := generateMarshalFormHelper()
-	require.NoError(t, err, "Failed to generate form helper")
-	require.NotEmpty(t, formHelper, "Form helper should be generated when form-encoded bodies exist")
-	require.Contains(t, formHelper, "func MarshalForm(")
-	require.Contains(t, formHelper, "func marshalFormImpl(")
-	require.Contains(t, formHelper, "reflect.Value")
-
 	// Verify it generates WithFormdataBody method
 	require.Contains(t, clientCode, "WithFormdataBody")
 }
