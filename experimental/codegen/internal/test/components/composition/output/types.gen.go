@@ -679,7 +679,8 @@ func (t *OneOfObject3Union) ApplyDefaults() {
 // #/components/schemas/OneOfObject4
 // oneOf plus fixed type - custom marshaling/unmarshaling
 type OneOfObject4 struct {
-	union json.RawMessage
+	FixedProperty *string `form:"fixedProperty,omitempty" json:"fixedProperty,omitempty"`
+	union         json.RawMessage
 }
 
 // AsOneOfVariant1 returns the union data inside the OneOfObject4 as a OneOfVariant1.
@@ -759,11 +760,42 @@ func (t *OneOfObject4) MergeOneOfVariant3(v OneOfVariant3) error {
 
 func (t OneOfObject4) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if t.FixedProperty != nil {
+		object["fixedProperty"], err = json.Marshal(t.FixedProperty)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'fixedProperty': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
 	return b, err
 }
 
 func (t *OneOfObject4) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+	if raw, found := object["fixedProperty"]; found {
+		err = json.Unmarshal(raw, &t.FixedProperty)
+		if err != nil {
+			return fmt.Errorf("error reading 'fixedProperty': %w", err)
+		}
+	}
 	return err
 }
 
@@ -786,6 +818,7 @@ func (t OneOfObject5) AsOneOfVariant4() (OneOfVariant4, error) {
 
 // FromOneOfVariant4 overwrites any union data inside the OneOfObject5 as the provided OneOfVariant4.
 func (t *OneOfObject5) FromOneOfVariant4(v OneOfVariant4) error {
+	v.Discriminator = "OneOfVariant4"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -793,6 +826,7 @@ func (t *OneOfObject5) FromOneOfVariant4(v OneOfVariant4) error {
 
 // MergeOneOfVariant4 performs a merge with any union data inside the OneOfObject5, using the provided OneOfVariant4.
 func (t *OneOfObject5) MergeOneOfVariant4(v OneOfVariant4) error {
+	v.Discriminator = "OneOfVariant4"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -811,6 +845,7 @@ func (t OneOfObject5) AsOneOfVariant5() (OneOfVariant5, error) {
 
 // FromOneOfVariant5 overwrites any union data inside the OneOfObject5 as the provided OneOfVariant5.
 func (t *OneOfObject5) FromOneOfVariant5(v OneOfVariant5) error {
+	v.Discriminator = "OneOfVariant5"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -818,6 +853,7 @@ func (t *OneOfObject5) FromOneOfVariant5(v OneOfVariant5) error {
 
 // MergeOneOfVariant5 performs a merge with any union data inside the OneOfObject5, using the provided OneOfVariant5.
 func (t *OneOfObject5) MergeOneOfVariant5(v OneOfVariant5) error {
+	v.Discriminator = "OneOfVariant5"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -881,6 +917,7 @@ func (t OneOfObject6) AsOneOfVariant4() (OneOfVariant4, error) {
 
 // FromOneOfVariant4 overwrites any union data inside the OneOfObject6 as the provided OneOfVariant4.
 func (t *OneOfObject6) FromOneOfVariant4(v OneOfVariant4) error {
+	v.Discriminator = "v4"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -888,6 +925,7 @@ func (t *OneOfObject6) FromOneOfVariant4(v OneOfVariant4) error {
 
 // MergeOneOfVariant4 performs a merge with any union data inside the OneOfObject6, using the provided OneOfVariant4.
 func (t *OneOfObject6) MergeOneOfVariant4(v OneOfVariant4) error {
+	v.Discriminator = "v4"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -906,6 +944,7 @@ func (t OneOfObject6) AsOneOfVariant5() (OneOfVariant5, error) {
 
 // FromOneOfVariant5 overwrites any union data inside the OneOfObject6 as the provided OneOfVariant5.
 func (t *OneOfObject6) FromOneOfVariant5(v OneOfVariant5) error {
+	v.Discriminator = "v5"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -913,6 +952,7 @@ func (t *OneOfObject6) FromOneOfVariant5(v OneOfVariant5) error {
 
 // MergeOneOfVariant5 performs a merge with any union data inside the OneOfObject6, using the provided OneOfVariant5.
 func (t *OneOfObject6) MergeOneOfVariant5(v OneOfVariant5) error {
+	v.Discriminator = "v5"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1223,6 +1263,7 @@ func (t *OneOfObject7Item) ApplyDefaults() {
 // #/components/schemas/OneOfObject8
 // oneOf with fixed properties
 type OneOfObject8 struct {
+	Fixed *string `form:"fixed,omitempty" json:"fixed,omitempty"`
 	union json.RawMessage
 }
 
@@ -1278,11 +1319,42 @@ func (t *OneOfObject8) MergeOneOfVariant2(v OneOfVariant2) error {
 
 func (t OneOfObject8) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if t.Fixed != nil {
+		object["fixed"], err = json.Marshal(t.Fixed)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'fixed': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
 	return b, err
 }
 
 func (t *OneOfObject8) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+	if raw, found := object["fixed"]; found {
+		err = json.Unmarshal(raw, &t.Fixed)
+		if err != nil {
+			return fmt.Errorf("error reading 'fixed': %w", err)
+		}
+	}
 	return err
 }
 
@@ -1293,6 +1365,7 @@ func (t *OneOfObject8) ApplyDefaults() {
 // #/components/schemas/OneOfObject9
 // oneOf with fixed discriminator
 type OneOfObject9 struct {
+	Type  string `form:"type" json:"type"`
 	union json.RawMessage
 }
 
@@ -1305,6 +1378,7 @@ func (t OneOfObject9) AsOneOfVariant1() (OneOfVariant1, error) {
 
 // FromOneOfVariant1 overwrites any union data inside the OneOfObject9 as the provided OneOfVariant1.
 func (t *OneOfObject9) FromOneOfVariant1(v OneOfVariant1) error {
+	t.Type = "v1"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1312,6 +1386,7 @@ func (t *OneOfObject9) FromOneOfVariant1(v OneOfVariant1) error {
 
 // MergeOneOfVariant1 performs a merge with any union data inside the OneOfObject9, using the provided OneOfVariant1.
 func (t *OneOfObject9) MergeOneOfVariant1(v OneOfVariant1) error {
+	t.Type = "v1"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1330,6 +1405,7 @@ func (t OneOfObject9) AsOneOfVariant6() (OneOfVariant6, error) {
 
 // FromOneOfVariant6 overwrites any union data inside the OneOfObject9 as the provided OneOfVariant6.
 func (t *OneOfObject9) FromOneOfVariant6(v OneOfVariant6) error {
+	t.Type = "v6"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1337,6 +1413,7 @@ func (t *OneOfObject9) FromOneOfVariant6(v OneOfVariant6) error {
 
 // MergeOneOfVariant6 performs a merge with any union data inside the OneOfObject9, using the provided OneOfVariant6.
 func (t *OneOfObject9) MergeOneOfVariant6(v OneOfVariant6) error {
+	t.Type = "v6"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1373,11 +1450,40 @@ func (t OneOfObject9) ValueByDiscriminator() (any, error) {
 
 func (t OneOfObject9) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+	object["type"], err = json.Marshal(t.Type)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'type': %w", err)
+	}
+	b, err = json.Marshal(object)
 	return b, err
 }
 
 func (t *OneOfObject9) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+	if raw, found := object["type"]; found {
+		err = json.Unmarshal(raw, &t.Type)
+		if err != nil {
+			return fmt.Errorf("error reading 'type': %w", err)
+		}
+	}
 	return err
 }
 
@@ -1388,6 +1494,9 @@ func (t *OneOfObject9) ApplyDefaults() {
 // #/components/schemas/OneOfObject10
 // fixed properties, variable required - will compile, but not much sense
 type OneOfObject10 struct {
+	One   *string `form:"one,omitempty" json:"one,omitempty"`
+	Two   *int    `form:"two,omitempty" json:"two,omitempty"`
+	Three *bool   `form:"three,omitempty" json:"three,omitempty"`
 	union json.RawMessage
 }
 
@@ -1443,11 +1552,66 @@ func (t *OneOfObject10) MergeAny1(v any) error {
 
 func (t OneOfObject10) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if t.One != nil {
+		object["one"], err = json.Marshal(t.One)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'one': %w", err)
+		}
+	}
+	if t.Two != nil {
+		object["two"], err = json.Marshal(t.Two)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'two': %w", err)
+		}
+	}
+	if t.Three != nil {
+		object["three"], err = json.Marshal(t.Three)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'three': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
 	return b, err
 }
 
 func (t *OneOfObject10) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+	if raw, found := object["one"]; found {
+		err = json.Unmarshal(raw, &t.One)
+		if err != nil {
+			return fmt.Errorf("error reading 'one': %w", err)
+		}
+	}
+	if raw, found := object["two"]; found {
+		err = json.Unmarshal(raw, &t.Two)
+		if err != nil {
+			return fmt.Errorf("error reading 'two': %w", err)
+		}
+	}
+	if raw, found := object["three"]; found {
+		err = json.Unmarshal(raw, &t.Three)
+		if err != nil {
+			return fmt.Errorf("error reading 'three': %w", err)
+		}
+	}
 	return err
 }
 
@@ -1758,6 +1922,7 @@ func (t *OneOfObject12AllOf1) ApplyDefaults() {
 // #/components/schemas/OneOfObject13
 // oneOf with fixed discriminator and other fields allowed
 type OneOfObject13 struct {
+	Type  string `form:"type" json:"type"`
 	union json.RawMessage
 }
 
@@ -1770,6 +1935,7 @@ func (t OneOfObject13) AsOneOfVariant1() (OneOfVariant1, error) {
 
 // FromOneOfVariant1 overwrites any union data inside the OneOfObject13 as the provided OneOfVariant1.
 func (t *OneOfObject13) FromOneOfVariant1(v OneOfVariant1) error {
+	t.Type = "v1"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1777,6 +1943,7 @@ func (t *OneOfObject13) FromOneOfVariant1(v OneOfVariant1) error {
 
 // MergeOneOfVariant1 performs a merge with any union data inside the OneOfObject13, using the provided OneOfVariant1.
 func (t *OneOfObject13) MergeOneOfVariant1(v OneOfVariant1) error {
+	t.Type = "v1"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1795,6 +1962,7 @@ func (t OneOfObject13) AsOneOfVariant6() (OneOfVariant6, error) {
 
 // FromOneOfVariant6 overwrites any union data inside the OneOfObject13 as the provided OneOfVariant6.
 func (t *OneOfObject13) FromOneOfVariant6(v OneOfVariant6) error {
+	t.Type = "v6"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1802,6 +1970,7 @@ func (t *OneOfObject13) FromOneOfVariant6(v OneOfVariant6) error {
 
 // MergeOneOfVariant6 performs a merge with any union data inside the OneOfObject13, using the provided OneOfVariant6.
 func (t *OneOfObject13) MergeOneOfVariant6(v OneOfVariant6) error {
+	t.Type = "v6"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1838,11 +2007,40 @@ func (t OneOfObject13) ValueByDiscriminator() (any, error) {
 
 func (t OneOfObject13) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+	object["type"], err = json.Marshal(t.Type)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'type': %w", err)
+	}
+	b, err = json.Marshal(object)
 	return b, err
 }
 
 func (t *OneOfObject13) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+	if raw, found := object["type"]; found {
+		err = json.Unmarshal(raw, &t.Type)
+		if err != nil {
+			return fmt.Errorf("error reading 'type': %w", err)
+		}
+	}
 	return err
 }
 

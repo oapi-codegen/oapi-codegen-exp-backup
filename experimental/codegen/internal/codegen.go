@@ -1029,22 +1029,35 @@ func generateAllOfStructWithUnions(name string, fields []StructField, unionField
 	return b.String()
 }
 
-// generateAnyOfType generates a union type for anyOf schemas.
-func generateAnyOfType(gen *TypeGenerator, desc *SchemaDescriptor) string {
-	members := collectUnionMembers(gen, desc, desc.AnyOf, desc.Schema.AnyOf, "anyOf")
+// generateUnionTypeCommon is the shared implementation for anyOf and oneOf type generation.
+func generateUnionTypeCommon(gen *TypeGenerator, desc *SchemaDescriptor, isOneOf bool) string {
+	var members []UnionMember
+	if isOneOf {
+		members = collectUnionMembers(gen, desc, desc.OneOf, desc.Schema.OneOf, "oneOf")
+	} else {
+		members = collectUnionMembers(gen, desc, desc.AnyOf, desc.Schema.AnyOf, "anyOf")
+	}
 	if len(members) == 0 {
 		return ""
 	}
 
 	gen.AddJSONImports()
 
+	// Extract fixed properties (wrapper fields alongside oneOf/anyOf)
+	var fixedFields []StructField
+	if desc.Schema.Properties != nil && desc.Schema.Properties.Len() > 0 {
+		fixedFields = gen.GenerateStructFields(desc)
+	}
+
 	cfg := UnionTypeConfig{
 		TypeName:      desc.ShortName,
 		Members:       members,
-		IsOneOf:       false,
+		IsOneOf:       isOneOf,
 		Doc:           extractDescription(desc.Schema),
+		FixedFields:   fixedFields,
 		Discriminator: desc.Discriminator,
 		HelperPrefix:  gen.helperPrefix(),
+		TagGen:        gen.tagGenerator,
 	}
 
 	code := GenerateUnionType(cfg)
@@ -1063,38 +1076,14 @@ func generateAnyOfType(gen *TypeGenerator, desc *SchemaDescriptor) string {
 	return code
 }
 
+// generateAnyOfType generates a union type for anyOf schemas.
+func generateAnyOfType(gen *TypeGenerator, desc *SchemaDescriptor) string {
+	return generateUnionTypeCommon(gen, desc, false)
+}
+
 // generateOneOfType generates a union type for oneOf schemas.
 func generateOneOfType(gen *TypeGenerator, desc *SchemaDescriptor) string {
-	members := collectUnionMembers(gen, desc, desc.OneOf, desc.Schema.OneOf, "oneOf")
-	if len(members) == 0 {
-		return ""
-	}
-
-	gen.AddJSONImports()
-
-	cfg := UnionTypeConfig{
-		TypeName:      desc.ShortName,
-		Members:       members,
-		IsOneOf:       true,
-		Doc:           extractDescription(desc.Schema),
-		Discriminator: desc.Discriminator,
-		HelperPrefix:  gen.helperPrefix(),
-	}
-
-	code := GenerateUnionType(cfg)
-	code += "\n" + GenerateUnionAccessors(cfg)
-	if discCode := GenerateUnionDiscriminator(cfg); discCode != "" {
-		gen.AddImport("errors")
-		code += "\n" + discCode
-	}
-	code += "\n" + GenerateUnionMarshalUnmarshal(cfg)
-	if len(cfg.FixedFields) > 0 {
-		gen.AddImport("fmt")
-	}
-	gen.NeedHelper("json_merge")
-	code += "\n" + GenerateUnionApplyDefaults(desc.ShortName)
-
-	return code
+	return generateUnionTypeCommon(gen, desc, true)
 }
 
 // schemaHasApplyDefaults returns true if the schema will have an ApplyDefaults method generated.

@@ -409,12 +409,28 @@ func GenerateUnionAccessors(cfg UnionTypeConfig) string {
 	return b.String()
 }
 
+// allMembersMapped returns true if every union member has at least one discriminator mapping value.
+// The original oapi-codegen only auto-sets discriminator values in From/Merge when ALL members
+// are covered by the mapping.
+func allMembersMapped(cfg UnionTypeConfig) bool {
+	if cfg.Discriminator == nil {
+		return false
+	}
+	for _, m := range cfg.Members {
+		if len(m.DiscriminatorValues) == 0 {
+			return false
+		}
+	}
+	return true
+}
+
 // generateDiscriminatorAutoSet emits code to auto-set the discriminator value in From/Merge methods.
-// Currently only sets the discriminator on the wrapper struct when it's a fixed field.
-// Setting on the variant requires knowledge of the variant's schema (whether it has the field),
-// which will be added in a future iteration.
+// Only emits code when ALL union members are covered by the discriminator mapping (matching the
+// original oapi-codegen behavior). Sets on the wrapper struct if the property is a fixed field,
+// otherwise sets on the variant. If the variant doesn't actually have the discriminator field,
+// the generated code won't compile — this is intentional as a signal that the spec is malformed.
 func generateDiscriminatorAutoSet(b **CodeBuilder, cfg UnionTypeConfig, m UnionMember) {
-	if cfg.Discriminator == nil || len(m.DiscriminatorValues) == 0 {
+	if !allMembersMapped(cfg) || len(m.DiscriminatorValues) == 0 {
 		return
 	}
 	discValue := m.DiscriminatorValues[0]
@@ -422,10 +438,12 @@ func generateDiscriminatorAutoSet(b **CodeBuilder, cfg UnionTypeConfig, m UnionM
 	goFieldName := UppercaseFirstCharacter(propName)
 
 	if cfg.hasFixedField(propName) {
-		// Set on wrapper struct — safe, we know the field exists
+		// Discriminator property is a fixed field on the wrapper struct
 		(*b).Line("t.%s = %q", goFieldName, discValue)
+	} else {
+		// Discriminator property lives on the variant
+		(*b).Line("v.%s = %q", goFieldName, discValue)
 	}
-	// TODO: auto-set on variant when we can verify the variant has the discriminator property
 }
 
 // GenerateUnionDiscriminator generates Discriminator() and ValueByDiscriminator() methods.

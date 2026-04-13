@@ -938,6 +938,7 @@ func (t OneOfWithDiscriminator) AsCat() (Cat, error) {
 
 // FromCat overwrites any union data inside the OneOfWithDiscriminator as the provided Cat.
 func (t *OneOfWithDiscriminator) FromCat(v Cat) error {
+	v.PetType = "Cat"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -945,6 +946,7 @@ func (t *OneOfWithDiscriminator) FromCat(v Cat) error {
 
 // MergeCat performs a merge with any union data inside the OneOfWithDiscriminator, using the provided Cat.
 func (t *OneOfWithDiscriminator) MergeCat(v Cat) error {
+	v.PetType = "Cat"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -963,6 +965,7 @@ func (t OneOfWithDiscriminator) AsDog() (Dog, error) {
 
 // FromDog overwrites any union data inside the OneOfWithDiscriminator as the provided Dog.
 func (t *OneOfWithDiscriminator) FromDog(v Dog) error {
+	v.PetType = "Dog"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -970,6 +973,7 @@ func (t *OneOfWithDiscriminator) FromDog(v Dog) error {
 
 // MergeDog performs a merge with any union data inside the OneOfWithDiscriminator, using the provided Dog.
 func (t *OneOfWithDiscriminator) MergeDog(v Dog) error {
+	v.PetType = "Dog"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1032,6 +1036,7 @@ func (t OneOfWithDiscriminatorMapping) AsCat() (Cat, error) {
 
 // FromCat overwrites any union data inside the OneOfWithDiscriminatorMapping as the provided Cat.
 func (t *OneOfWithDiscriminatorMapping) FromCat(v Cat) error {
+	v.PetType = "cat"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1039,6 +1044,7 @@ func (t *OneOfWithDiscriminatorMapping) FromCat(v Cat) error {
 
 // MergeCat performs a merge with any union data inside the OneOfWithDiscriminatorMapping, using the provided Cat.
 func (t *OneOfWithDiscriminatorMapping) MergeCat(v Cat) error {
+	v.PetType = "cat"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1057,6 +1063,7 @@ func (t OneOfWithDiscriminatorMapping) AsDog() (Dog, error) {
 
 // FromDog overwrites any union data inside the OneOfWithDiscriminatorMapping as the provided Dog.
 func (t *OneOfWithDiscriminatorMapping) FromDog(v Dog) error {
+	v.PetType = "dog"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1064,6 +1071,7 @@ func (t *OneOfWithDiscriminatorMapping) FromDog(v Dog) error {
 
 // MergeDog performs a merge with any union data inside the OneOfWithDiscriminatorMapping, using the provided Dog.
 func (t *OneOfWithDiscriminatorMapping) MergeDog(v Dog) error {
+	v.PetType = "dog"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1339,6 +1347,7 @@ func (t ObjectWithOneOfPropertyVariant) AsCat() (Cat, error) {
 
 // FromCat overwrites any union data inside the ObjectWithOneOfPropertyVariant as the provided Cat.
 func (t *ObjectWithOneOfPropertyVariant) FromCat(v Cat) error {
+	v.PetType = "Cat"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1346,6 +1355,7 @@ func (t *ObjectWithOneOfPropertyVariant) FromCat(v Cat) error {
 
 // MergeCat performs a merge with any union data inside the ObjectWithOneOfPropertyVariant, using the provided Cat.
 func (t *ObjectWithOneOfPropertyVariant) MergeCat(v Cat) error {
+	v.PetType = "Cat"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1364,6 +1374,7 @@ func (t ObjectWithOneOfPropertyVariant) AsDog() (Dog, error) {
 
 // FromDog overwrites any union data inside the ObjectWithOneOfPropertyVariant as the provided Dog.
 func (t *ObjectWithOneOfPropertyVariant) FromDog(v Dog) error {
+	v.PetType = "Dog"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1371,6 +1382,7 @@ func (t *ObjectWithOneOfPropertyVariant) FromDog(v Dog) error {
 
 // MergeDog performs a merge with any union data inside the ObjectWithOneOfPropertyVariant, using the provided Dog.
 func (t *ObjectWithOneOfPropertyVariant) MergeDog(v Dog) error {
+	v.PetType = "Dog"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1500,6 +1512,7 @@ func (t AllOfWithOneOfAllOf1) AsCat() (Cat, error) {
 
 // FromCat overwrites any union data inside the AllOfWithOneOfAllOf1 as the provided Cat.
 func (t *AllOfWithOneOfAllOf1) FromCat(v Cat) error {
+	v.PetType = "Cat"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1507,6 +1520,7 @@ func (t *AllOfWithOneOfAllOf1) FromCat(v Cat) error {
 
 // MergeCat performs a merge with any union data inside the AllOfWithOneOfAllOf1, using the provided Cat.
 func (t *AllOfWithOneOfAllOf1) MergeCat(v Cat) error {
+	v.PetType = "Cat"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1525,6 +1539,7 @@ func (t AllOfWithOneOfAllOf1) AsDog() (Dog, error) {
 
 // FromDog overwrites any union data inside the AllOfWithOneOfAllOf1 as the provided Dog.
 func (t *AllOfWithOneOfAllOf1) FromDog(v Dog) error {
+	v.PetType = "Dog"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -1532,6 +1547,7 @@ func (t *AllOfWithOneOfAllOf1) FromDog(v Dog) error {
 
 // MergeDog performs a merge with any union data inside the AllOfWithOneOfAllOf1, using the provided Dog.
 func (t *AllOfWithOneOfAllOf1) MergeDog(v Dog) error {
+	v.PetType = "Dog"
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
