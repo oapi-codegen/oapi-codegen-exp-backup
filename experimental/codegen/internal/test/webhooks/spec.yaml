@@ -1,0 +1,98 @@
+openapi: "3.1.0"
+info:
+  version: 1.0.0
+  title: Webhook Test
+  description: Tests webhook initiator and receiver code generation.
+paths:
+  /api/webhook/{kind}:
+    post:
+      summary: Register a webhook
+      operationId: RegisterWebhook
+      parameters:
+        - name: kind
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - enterEvent
+              - exitEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRegistration'
+      responses:
+        '201':
+          description: Webhook registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookRegistrationResponse'
+  /api/webhook/{id}:
+    delete:
+      summary: Deregister a webhook
+      operationId: DeregisterWebhook
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Webhook deregistered
+webhooks:
+  enterEvent:
+    post:
+      summary: Person entered the building
+      operationId: EnterEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+      responses:
+        '200':
+          description: Event received
+  exitEvent:
+    post:
+      summary: Person exited the building
+      operationId: ExitEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+      responses:
+        '200':
+          description: Event received
+components:
+  schemas:
+    WebhookRegistration:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+    WebhookRegistrationResponse:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+    Person:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string

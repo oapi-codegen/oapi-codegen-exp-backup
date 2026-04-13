@@ -1,0 +1,6 @@
+package: output
+output: output/callbacks.gen.go
+generation:
+  callback-initiator: true
+  callback-receiver: true
+  server: std-http

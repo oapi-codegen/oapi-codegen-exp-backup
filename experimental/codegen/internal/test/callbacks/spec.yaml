@@ -1,0 +1,90 @@
+openapi: "3.1.0"
+info:
+  version: 1.0.0
+  title: Callback Test
+  description: Tests callback initiator and receiver code generation.
+paths:
+  /api/plant_tree:
+    post:
+      summary: Request a tree planting
+      operationId: PlantTree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TreePlantingRequest'
+      responses:
+        '202':
+          description: Tree planting request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreeWithId'
+      callbacks:
+        treePlanted:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: Tree planting result notification
+              operationId: TreePlanted
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/TreePlantingResult'
+              responses:
+                '200':
+                  description: Callback received successfully
+components:
+  schemas:
+    TreePlantingRequest:
+      type: object
+      required:
+        - location
+        - kind
+        - callbackUrl
+      properties:
+        location:
+          type: string
+          description: Where to plant the tree
+        kind:
+          type: string
+          description: What kind of tree to plant
+        callbackUrl:
+          type: string
+          format: uri
+          description: URL to receive the planting result callback
+
+    TreeWithId:
+      type: object
+      required:
+        - id
+        - location
+        - kind
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for this planting request
+        location:
+          type: string
+        kind:
+          type: string
+
+    TreePlantingResult:
+      type: object
+      required:
+        - id
+        - success
+      properties:
+        id:
+          type: string
+          format: uuid
+        location:
+          type: string
+        kind:
+          type: string
+        success:
+          type: boolean
+          description: Whether the tree was successfully planted

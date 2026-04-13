@@ -1,0 +1,6 @@
+package: child
+output: output/child/types.gen.go
+generate:
+  models: true
+import-mapping:
+  parent.api.yaml: github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/test/external_ref/multi_spec/output/parent

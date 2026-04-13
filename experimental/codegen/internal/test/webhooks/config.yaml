@@ -1,0 +1,6 @@
+package: output
+output: output/webhooks.gen.go
+generation:
+  webhook-initiator: true
+  webhook-receiver: true
+  server: std-http

@@ -1,6 +1,0 @@
-package: output
-output: spec/output/types.gen.go
-generate:
-  models: true
-import-mapping:
-  ../packageA/spec.yaml: github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/test/previous_version/issues/issue_1825/packageA/output
