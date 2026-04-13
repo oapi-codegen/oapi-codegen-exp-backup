@@ -90,53 +90,70 @@ type MapWithDefaults struct {
 	AdditionalProperties map[string]string `json:"-"`
 }
 
-func (s MapWithDefaults) MarshalJSON() ([]byte, error) {
-	result := make(map[string]any)
-
-	if s.Prefix != nil {
-		result["prefix"] = s.Prefix
+// Get returns the specified additional property value and whether it was found.
+func (a MapWithDefaults) Get(fieldName string) (value string, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
 	}
-
-	// Add additional properties
-	for k, v := range s.AdditionalProperties {
-		result[k] = v
-	}
-
-	return json.Marshal(result)
+	return
 }
 
-func (s *MapWithDefaults) UnmarshalJSON(data []byte) error {
-	// Known fields
-	knownFields := map[string]bool{
-		"prefix": true,
+// Set sets an additional property value.
+func (a *MapWithDefaults) Set(fieldName string, value string) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]string)
 	}
+	a.AdditionalProperties[fieldName] = value
+}
 
-	var raw map[string]json.RawMessage
-	if err := json.Unmarshal(data, &raw); err != nil {
+func (a *MapWithDefaults) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
 		return err
 	}
 
-	if v, ok := raw["prefix"]; ok {
+	if raw, found := object["prefix"]; found {
 		var val string
-		if err := json.Unmarshal(v, &val); err != nil {
-			return err
+		if err := json.Unmarshal(raw, &val); err != nil {
+			return fmt.Errorf("error reading 'prefix': %w", err)
 		}
-		s.Prefix = &val
+		a.Prefix = &val
+		delete(object, "prefix")
 	}
 
-	// Collect additional properties
-	s.AdditionalProperties = make(map[string]string)
-	for k, v := range raw {
-		if !knownFields[k] {
-			var val string
-			if err := json.Unmarshal(v, &val); err != nil {
-				return err
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]string)
+		for fieldName, fieldBuf := range object {
+			var fieldVal string
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
 			}
-			s.AdditionalProperties[k] = val
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+func (a MapWithDefaults) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Prefix != nil {
+		object["prefix"], err = json.Marshal(a.Prefix)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'prefix': %w", err)
 		}
 	}
 
-	return nil
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
 }
 
 // ApplyDefaults sets default values for fields that are nil.

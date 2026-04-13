@@ -1,0 +1,32 @@
+{{/* ApplyDefaults template — generates recursive default-setting method */}}
+
+{{define "apply_defaults"}}
+
+// ApplyDefaults sets default values for fields that are nil.
+func (s *{{.TypeName}}) ApplyDefaults() {
+{{- range .Properties}}
+{{- if and .Default .Pointer}}
+	if s.{{.GoFieldName}} == nil {
+{{- if .NeedsTypeConversion}}
+		v := {{.BaseType}}({{.Default}})
+{{- else}}
+		v := {{.Default}}
+{{- end}}
+		s.{{.GoFieldName}} = &v
+	}
+{{- end}}
+{{- if and .IsStruct .Pointer}}
+	if s.{{.GoFieldName}} != nil {
+		s.{{.GoFieldName}}.ApplyDefaults()
+	}
+{{- end}}
+{{- if and .IsExternal .Pointer}}
+	if s.{{.GoFieldName}} != nil {
+		if m := reflect.ValueOf(s.{{.GoFieldName}}).MethodByName("ApplyDefaults"); m.IsValid() {
+			m.Call(nil)
+		}
+	}
+{{- end}}
+{{- end}}
+}
+{{end}}

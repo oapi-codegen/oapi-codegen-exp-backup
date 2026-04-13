@@ -198,53 +198,70 @@ type AdditionalPropsNone struct {
 	AdditionalProperties map[string]any `json:"-"`
 }
 
-func (s AdditionalPropsNone) MarshalJSON() ([]byte, error) {
-	result := make(map[string]any)
-
-	if s.Known != nil {
-		result["known"] = s.Known
+// Get returns the specified additional property value and whether it was found.
+func (a AdditionalPropsNone) Get(fieldName string) (value any, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
 	}
-
-	// Add additional properties
-	for k, v := range s.AdditionalProperties {
-		result[k] = v
-	}
-
-	return json.Marshal(result)
+	return
 }
 
-func (s *AdditionalPropsNone) UnmarshalJSON(data []byte) error {
-	// Known fields
-	knownFields := map[string]bool{
-		"known": true,
+// Set sets an additional property value.
+func (a *AdditionalPropsNone) Set(fieldName string, value any) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]any)
 	}
+	a.AdditionalProperties[fieldName] = value
+}
 
-	var raw map[string]json.RawMessage
-	if err := json.Unmarshal(data, &raw); err != nil {
+func (a *AdditionalPropsNone) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
 		return err
 	}
 
-	if v, ok := raw["known"]; ok {
+	if raw, found := object["known"]; found {
 		var val string
-		if err := json.Unmarshal(v, &val); err != nil {
-			return err
+		if err := json.Unmarshal(raw, &val); err != nil {
+			return fmt.Errorf("error reading 'known': %w", err)
 		}
-		s.Known = &val
+		a.Known = &val
+		delete(object, "known")
 	}
 
-	// Collect additional properties
-	s.AdditionalProperties = make(map[string]any)
-	for k, v := range raw {
-		if !knownFields[k] {
-			var val any
-			if err := json.Unmarshal(v, &val); err != nil {
-				return err
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]any)
+		for fieldName, fieldBuf := range object {
+			var fieldVal any
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
 			}
-			s.AdditionalProperties[k] = val
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+func (a AdditionalPropsNone) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Known != nil {
+		object["known"], err = json.Marshal(a.Known)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'known': %w", err)
 		}
 	}
 
-	return nil
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -263,53 +280,70 @@ type AdditionalPropsWithProps struct {
 	AdditionalProperties map[string]string `json:"-"`
 }
 
-func (s AdditionalPropsWithProps) MarshalJSON() ([]byte, error) {
-	result := make(map[string]any)
-
-	if s.ID != nil {
-		result["id"] = s.ID
+// Get returns the specified additional property value and whether it was found.
+func (a AdditionalPropsWithProps) Get(fieldName string) (value string, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
 	}
-
-	// Add additional properties
-	for k, v := range s.AdditionalProperties {
-		result[k] = v
-	}
-
-	return json.Marshal(result)
+	return
 }
 
-func (s *AdditionalPropsWithProps) UnmarshalJSON(data []byte) error {
-	// Known fields
-	knownFields := map[string]bool{
-		"id": true,
+// Set sets an additional property value.
+func (a *AdditionalPropsWithProps) Set(fieldName string, value string) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]string)
 	}
+	a.AdditionalProperties[fieldName] = value
+}
 
-	var raw map[string]json.RawMessage
-	if err := json.Unmarshal(data, &raw); err != nil {
+func (a *AdditionalPropsWithProps) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
 		return err
 	}
 
-	if v, ok := raw["id"]; ok {
+	if raw, found := object["id"]; found {
 		var val int
-		if err := json.Unmarshal(v, &val); err != nil {
-			return err
+		if err := json.Unmarshal(raw, &val); err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
 		}
-		s.ID = &val
+		a.ID = &val
+		delete(object, "id")
 	}
 
-	// Collect additional properties
-	s.AdditionalProperties = make(map[string]string)
-	for k, v := range raw {
-		if !knownFields[k] {
-			var val string
-			if err := json.Unmarshal(v, &val); err != nil {
-				return err
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]string)
+		for fieldName, fieldBuf := range object {
+			var fieldVal string
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
 			}
-			s.AdditionalProperties[k] = val
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+func (a AdditionalPropsWithProps) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ID != nil {
+		object["id"], err = json.Marshal(a.ID)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'id': %w", err)
 		}
 	}
 
-	return nil
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
 }
 
 // ApplyDefaults sets default values for fields that are nil.

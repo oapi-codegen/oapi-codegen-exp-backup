@@ -568,24 +568,26 @@ func generateStructType(gen *TypeGenerator, desc *SchemaDescriptor) string {
 
 	// Check if we need additionalProperties handling
 	if gen.HasAdditionalProperties(desc) {
-		// Mixed properties need encoding/json for marshal/unmarshal (but not fmt)
 		gen.AddJSONImport()
+		gen.AddImport("fmt")
 
 		addPropsType := gen.AdditionalPropertiesType(desc)
 		structCode := GenerateStructWithAdditionalProps(desc.ShortName, fields, addPropsType, doc, gen.TagGenerator())
 
-		// Generate marshal/unmarshal methods
-		marshalCode := GenerateMixedPropertiesMarshal(desc.ShortName, fields)
-		unmarshalCode := GenerateMixedPropertiesUnmarshal(desc.ShortName, fields, addPropsType)
+		addPropsCode, err := GenerateAdditionalPropertiesCode(desc.ShortName, fields, addPropsType)
+		if err != nil {
+			return fmt.Sprintf("// ERROR generating additional properties for %s: %v\n", desc.ShortName, err)
+		}
 
-		code := structCode + "\n" + marshalCode + "\n" + unmarshalCode
+		code := structCode + "\n" + addPropsCode
 
-		// Generate ApplyDefaults method if needed
-		if applyDefaults, needsReflect := GenerateApplyDefaults(desc.ShortName, fields); applyDefaults != "" {
-			code += "\n" + applyDefaults
-			if needsReflect {
-				gen.AddImport("reflect")
-			}
+		applyDefaults, needsReflect, err := GenerateApplyDefaultsCode(desc.ShortName, fields)
+		if err != nil {
+			return fmt.Sprintf("// ERROR generating ApplyDefaults for %s: %v\n", desc.ShortName, err)
+		}
+		code += "\n" + applyDefaults
+		if needsReflect {
+			gen.AddImport("reflect")
 		}
 
 		return code
@@ -593,12 +595,13 @@ func generateStructType(gen *TypeGenerator, desc *SchemaDescriptor) string {
 
 	code := GenerateStruct(desc.ShortName, fields, doc, gen.TagGenerator())
 
-	// Generate ApplyDefaults method if needed
-	if applyDefaults, needsReflect := GenerateApplyDefaults(desc.ShortName, fields); applyDefaults != "" {
-		code += "\n" + applyDefaults
-		if needsReflect {
-			gen.AddImport("reflect")
-		}
+	applyDefaults, needsReflect, err := GenerateApplyDefaultsCode(desc.ShortName, fields)
+	if err != nil {
+		return fmt.Sprintf("// ERROR generating ApplyDefaults for %s: %v\n", desc.ShortName, err)
+	}
+	code += "\n" + applyDefaults
+	if needsReflect {
+		gen.AddImport("reflect")
 	}
 
 	return code
@@ -814,12 +817,14 @@ func generateAllOfType(gen *TypeGenerator, desc *SchemaDescriptor) string {
 		code = GenerateStruct(desc.ShortName, finalFields, doc, gen.TagGenerator())
 	}
 
-	// Generate ApplyDefaults method if needed
-	if applyDefaults, needsReflect := GenerateApplyDefaults(desc.ShortName, finalFields); applyDefaults != "" {
-		code += "\n" + applyDefaults
-		if needsReflect {
-			gen.AddImport("reflect")
-		}
+	// Generate ApplyDefaults method
+	applyDefaults, needsReflect, err := GenerateApplyDefaultsCode(desc.ShortName, finalFields)
+	if err != nil {
+		return fmt.Sprintf("// ERROR generating ApplyDefaults for %s: %v\n", desc.ShortName, err)
+	}
+	code += "\n" + applyDefaults
+	if needsReflect {
+		gen.AddImport("reflect")
 	}
 
 	return code

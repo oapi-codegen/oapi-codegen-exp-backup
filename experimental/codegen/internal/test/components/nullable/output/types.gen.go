@@ -24,81 +24,118 @@ type PatchRequest struct {
 	AdditionalProperties      map[string]any                    `json:"-"`
 }
 
-func (s PatchRequest) MarshalJSON() ([]byte, error) {
-	result := make(map[string]any)
-
-	result["simple_required_nullable"] = s.SimpleRequiredNullable
-	result["simple_optional_nullable"] = s.SimpleOptionalNullable
-	if s.SimpleOptionalNonNullable != nil {
-		result["simple_optional_non_nullable"] = s.SimpleOptionalNonNullable
+// Get returns the specified additional property value and whether it was found.
+func (a PatchRequest) Get(fieldName string) (value any, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
 	}
-	result["complex_required_nullable"] = s.ComplexRequiredNullable
-	result["complex_optional_nullable"] = s.ComplexOptionalNullable
-
-	// Add additional properties
-	for k, v := range s.AdditionalProperties {
-		result[k] = v
-	}
-
-	return json.Marshal(result)
+	return
 }
 
-func (s *PatchRequest) UnmarshalJSON(data []byte) error {
-	// Known fields
-	knownFields := map[string]bool{
-		"simple_required_nullable":     true,
-		"simple_optional_nullable":     true,
-		"simple_optional_non_nullable": true,
-		"complex_required_nullable":    true,
-		"complex_optional_nullable":    true,
+// Set sets an additional property value.
+func (a *PatchRequest) Set(fieldName string, value any) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]any)
 	}
+	a.AdditionalProperties[fieldName] = value
+}
 
-	var raw map[string]json.RawMessage
-	if err := json.Unmarshal(data, &raw); err != nil {
+func (a *PatchRequest) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
 		return err
 	}
 
-	if v, ok := raw["simple_required_nullable"]; ok {
-		if err := json.Unmarshal(v, &s.SimpleRequiredNullable); err != nil {
-			return err
+	if raw, found := object["simple_required_nullable"]; found {
+		if err := json.Unmarshal(raw, &a.SimpleRequiredNullable); err != nil {
+			return fmt.Errorf("error reading 'simple_required_nullable': %w", err)
 		}
+		delete(object, "simple_required_nullable")
 	}
-	if v, ok := raw["simple_optional_nullable"]; ok {
-		if err := json.Unmarshal(v, &s.SimpleOptionalNullable); err != nil {
-			return err
+
+	if raw, found := object["simple_optional_nullable"]; found {
+		if err := json.Unmarshal(raw, &a.SimpleOptionalNullable); err != nil {
+			return fmt.Errorf("error reading 'simple_optional_nullable': %w", err)
 		}
+		delete(object, "simple_optional_nullable")
 	}
-	if v, ok := raw["simple_optional_non_nullable"]; ok {
+
+	if raw, found := object["simple_optional_non_nullable"]; found {
 		var val SimpleOptionalNonNullable
-		if err := json.Unmarshal(v, &val); err != nil {
-			return err
+		if err := json.Unmarshal(raw, &val); err != nil {
+			return fmt.Errorf("error reading 'simple_optional_non_nullable': %w", err)
 		}
-		s.SimpleOptionalNonNullable = &val
-	}
-	if v, ok := raw["complex_required_nullable"]; ok {
-		if err := json.Unmarshal(v, &s.ComplexRequiredNullable); err != nil {
-			return err
-		}
-	}
-	if v, ok := raw["complex_optional_nullable"]; ok {
-		if err := json.Unmarshal(v, &s.ComplexOptionalNullable); err != nil {
-			return err
-		}
+		a.SimpleOptionalNonNullable = &val
+		delete(object, "simple_optional_non_nullable")
 	}
 
-	// Collect additional properties
-	s.AdditionalProperties = make(map[string]any)
-	for k, v := range raw {
-		if !knownFields[k] {
-			var val any
-			if err := json.Unmarshal(v, &val); err != nil {
-				return err
+	if raw, found := object["complex_required_nullable"]; found {
+		if err := json.Unmarshal(raw, &a.ComplexRequiredNullable); err != nil {
+			return fmt.Errorf("error reading 'complex_required_nullable': %w", err)
+		}
+		delete(object, "complex_required_nullable")
+	}
+
+	if raw, found := object["complex_optional_nullable"]; found {
+		if err := json.Unmarshal(raw, &a.ComplexOptionalNullable); err != nil {
+			return fmt.Errorf("error reading 'complex_optional_nullable': %w", err)
+		}
+		delete(object, "complex_optional_nullable")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]any)
+		for fieldName, fieldBuf := range object {
+			var fieldVal any
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
 			}
-			s.AdditionalProperties[k] = val
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+func (a PatchRequest) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	object["simple_required_nullable"], err = json.Marshal(a.SimpleRequiredNullable)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'simple_required_nullable': %w", err)
+	}
+
+	object["simple_optional_nullable"], err = json.Marshal(a.SimpleOptionalNullable)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'simple_optional_nullable': %w", err)
+	}
+
+	if a.SimpleOptionalNonNullable != nil {
+		object["simple_optional_non_nullable"], err = json.Marshal(a.SimpleOptionalNonNullable)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'simple_optional_non_nullable': %w", err)
 		}
 	}
 
-	return nil
+	object["complex_required_nullable"], err = json.Marshal(a.ComplexRequiredNullable)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'complex_required_nullable': %w", err)
+	}
+
+	object["complex_optional_nullable"], err = json.Marshal(a.ComplexOptionalNullable)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'complex_optional_nullable': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
 }
 
 // ApplyDefaults sets default values for fields that are nil.
