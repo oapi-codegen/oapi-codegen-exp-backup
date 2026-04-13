@@ -296,23 +296,62 @@ func GenerateEnumFromInfo(info *EnumInfo) string {
 	return b.String()
 }
 
-// GenerateUnionType generates a union struct for anyOf/oneOf with marshal/unmarshal.
-func GenerateUnionType(name string, members []UnionMember, isOneOf bool, doc string) string {
+// UnionMember represents a member of a union type (anyOf/oneOf).
+type UnionMember struct {
+	TypeName            string   // Go type name (e.g., "Cat")
+	MethodName          string   // Suffix for As/From/Merge methods (e.g., "Cat")
+	Index               int      // Position in anyOf/oneOf array
+	HasApplyDefaults    bool     // Whether this type has an ApplyDefaults method
+	DiscriminatorValues []string // Discriminator mapping keys for this variant (empty if unmapped)
+}
+
+// UnionTypeConfig holds all information needed to generate a union type.
+type UnionTypeConfig struct {
+	TypeName      string
+	Members       []UnionMember
+	IsOneOf       bool
+	Doc           string
+	FixedFields   []StructField
+	Discriminator *DiscriminatorInfo
+	TagGen        *StructTagGenerator
+	HelperPrefix  string // e.g., "oapiCodegenHelpersPkg." or "" for embedded
+}
+
+// hasFixedField returns true if the given JSON field name is among the fixed fields.
+func (cfg UnionTypeConfig) hasFixedField(jsonName string) bool {
+	for _, f := range cfg.FixedFields {
+		if f.JSONName == jsonName {
+			return true
+		}
+	}
+	return false
+}
+
+// GenerateUnionType generates a union struct with json.RawMessage storage.
+func GenerateUnionType(cfg UnionTypeConfig) string {
 	b := NewCodeBuilder()
 
-	if doc != "" {
-		for _, line := range strings.Split(doc, "\n") {
+	if cfg.Doc != "" {
+		for _, line := range strings.Split(cfg.Doc, "\n") {
 			b.Line("// %s", line)
 		}
 	}
 
-	// Generate struct with pointer field for each member
-	b.Line("type %s struct {", name)
+	b.Line("type %s struct {", cfg.TypeName)
 	b.Indent()
 
-	for _, m := range members {
-		b.Line("%s *%s", m.FieldName, m.TypeName)
+	// Fixed properties (wrapper fields alongside oneOf/anyOf)
+	for _, f := range cfg.FixedFields {
+		tag := generateFieldTag(f, cfg.TagGen)
+		if f.Doc != "" {
+			for _, line := range strings.Split(f.Doc, "\n") {
+				b.Line("// %s", line)
+			}
+		}
+		b.Line("%s %s %s", f.Name, f.Type, tag)
 	}
+
+	b.Line("union json.RawMessage")
 
 	b.Dedent()
 	b.Line("}")
@@ -320,74 +359,174 @@ func GenerateUnionType(name string, members []UnionMember, isOneOf bool, doc str
 	return b.String()
 }
 
-// UnionMember represents a member of a union type (anyOf/oneOf).
-type UnionMember struct {
-	FieldName        string // Go field name
-	TypeName         string // Go type name
-	Index            int    // Position in anyOf/oneOf array
-	HasApplyDefaults bool   // Whether this type has an ApplyDefaults method
-}
-
-// isPrimitiveType returns true if the type is a Go primitive or collection
-// that doesn't have an ApplyDefaults method.
-func isPrimitiveType(typeName string) bool {
-	switch typeName {
-	case "string", "int", "int8", "int16", "int32", "int64",
-		"uint", "uint8", "uint16", "uint32", "uint64",
-		"float32", "float64", "bool", "any":
-		return true
-	default:
-		// Slices and maps don't have ApplyDefaults
-		if strings.HasPrefix(typeName, "[]") || strings.HasPrefix(typeName, "map[") {
-			return true
-		}
-		return false
-	}
-}
-
-// GenerateUnionApplyDefaults generates ApplyDefaults for a union type.
-// It recurses into non-nil members that have ApplyDefaults.
-func GenerateUnionApplyDefaults(name string, members []UnionMember) string {
+// GenerateUnionAccessors generates As/From/Merge methods for each union member.
+func GenerateUnionAccessors(cfg UnionTypeConfig) string {
 	b := NewCodeBuilder()
 
-	b.Line("// ApplyDefaults sets default values for fields that are nil.")
-	b.Line("func (u *%s) ApplyDefaults() {", name)
-	b.Indent()
+	for _, m := range cfg.Members {
+		// As method
+		b.Line("// As%s returns the union data inside the %s as a %s.", m.MethodName, cfg.TypeName, m.TypeName)
+		b.Line("func (t %s) As%s() (%s, error) {", cfg.TypeName, m.MethodName, m.TypeName)
+		b.Indent()
+		b.Line("var body %s", m.TypeName)
+		b.Line("err := json.Unmarshal(t.union, &body)")
+		b.Line("return body, err")
+		b.Dedent()
+		b.Line("}")
+		b.BlankLine()
 
-	for _, m := range members {
-		// Only recurse into types that have ApplyDefaults
-		if m.HasApplyDefaults {
-			b.Line("if u.%s != nil {", m.FieldName)
-			b.Indent()
-			b.Line("u.%s.ApplyDefaults()", m.FieldName)
-			b.Dedent()
-			b.Line("}")
-		}
+		// From method
+		b.Line("// From%s overwrites any union data inside the %s as the provided %s.", m.MethodName, cfg.TypeName, m.TypeName)
+		b.Line("func (t *%s) From%s(v %s) error {", cfg.TypeName, m.MethodName, m.TypeName)
+		b.Indent()
+		generateDiscriminatorAutoSet(&b, cfg, m)
+		b.Line("b, err := json.Marshal(v)")
+		b.Line("t.union = b")
+		b.Line("return err")
+		b.Dedent()
+		b.Line("}")
+		b.BlankLine()
+
+		// Merge method
+		b.Line("// Merge%s performs a merge with any union data inside the %s, using the provided %s.", m.MethodName, cfg.TypeName, m.TypeName)
+		b.Line("func (t *%s) Merge%s(v %s) error {", cfg.TypeName, m.MethodName, m.TypeName)
+		b.Indent()
+		generateDiscriminatorAutoSet(&b, cfg, m)
+		b.Line("b, err := json.Marshal(v)")
+		b.Line("if err != nil {")
+		b.Indent()
+		b.Line("return err")
+		b.Dedent()
+		b.Line("}")
+		b.Line("merged, err := %sJSONMerge(t.union, b)", cfg.HelperPrefix)
+		b.Line("t.union = merged")
+		b.Line("return err")
+		b.Dedent()
+		b.Line("}")
+		b.BlankLine()
 	}
-
-	b.Dedent()
-	b.Line("}")
 
 	return b.String()
 }
 
-// GenerateUnionMarshalOneOf generates MarshalJSON for a oneOf type.
-func GenerateUnionMarshalOneOf(name string, members []UnionMember) string {
+// generateDiscriminatorAutoSet emits code to auto-set the discriminator value in From/Merge methods.
+// Currently only sets the discriminator on the wrapper struct when it's a fixed field.
+// Setting on the variant requires knowledge of the variant's schema (whether it has the field),
+// which will be added in a future iteration.
+func generateDiscriminatorAutoSet(b **CodeBuilder, cfg UnionTypeConfig, m UnionMember) {
+	if cfg.Discriminator == nil || len(m.DiscriminatorValues) == 0 {
+		return
+	}
+	discValue := m.DiscriminatorValues[0]
+	propName := cfg.Discriminator.PropertyName
+	goFieldName := UppercaseFirstCharacter(propName)
+
+	if cfg.hasFixedField(propName) {
+		// Set on wrapper struct — safe, we know the field exists
+		(*b).Line("t.%s = %q", goFieldName, discValue)
+	}
+	// TODO: auto-set on variant when we can verify the variant has the discriminator property
+}
+
+// GenerateUnionDiscriminator generates Discriminator() and ValueByDiscriminator() methods.
+func GenerateUnionDiscriminator(cfg UnionTypeConfig) string {
+	if cfg.Discriminator == nil {
+		return ""
+	}
+
 	b := NewCodeBuilder()
 
-	b.Line("func (u %s) MarshalJSON() ([]byte, error) {", name)
+	// Discriminator() method — extracts the discriminator value from the union
+	b.Line("// Discriminator extracts the discriminator property value from the union data.")
+	b.Line("func (t %s) Discriminator() (string, error) {", cfg.TypeName)
 	b.Indent()
-
-	b.Line("var count int")
-	b.Line("var data []byte")
-	b.Line("var err error")
+	b.Line("var discriminator struct {")
+	b.Indent()
+	b.Line("Discriminator string `json:%q`", cfg.Discriminator.PropertyName)
+	b.Dedent()
+	b.Line("}")
+	b.Line("err := json.Unmarshal(t.union, &discriminator)")
+	b.Line("return discriminator.Discriminator, err")
+	b.Dedent()
+	b.Line("}")
 	b.BlankLine()
 
-	for _, m := range members {
-		b.Line("if u.%s != nil {", m.FieldName)
+	// ValueByDiscriminator() — only if mapping is non-empty
+	// Build reverse map: discriminator value → method name
+	type discEntry struct {
+		value      string
+		methodName string
+	}
+	var entries []discEntry
+	for _, m := range cfg.Members {
+		for _, dv := range m.DiscriminatorValues {
+			entries = append(entries, discEntry{value: dv, methodName: m.MethodName})
+		}
+	}
+
+	if len(entries) > 0 {
+		b.Line("// ValueByDiscriminator returns the union member based on the discriminator value.")
+		b.Line("func (t %s) ValueByDiscriminator() (any, error) {", cfg.TypeName)
 		b.Indent()
-		b.Line("count++")
-		b.Line("data, err = json.Marshal(u.%s)", m.FieldName)
+		b.Line("discriminator, err := t.Discriminator()")
+		b.Line("if err != nil {")
+		b.Indent()
+		b.Line("return nil, err")
+		b.Dedent()
+		b.Line("}")
+		b.Line("switch discriminator {")
+		for _, e := range entries {
+			b.Line("case %q:", e.value)
+			b.Indent()
+			b.Line("return t.As%s()", e.methodName)
+			b.Dedent()
+		}
+		b.Line("default:")
+		b.Indent()
+		b.Line("return nil, errors.New(\"unknown discriminator value: \" + discriminator)")
+		b.Dedent()
+		b.Line("}")
+		b.Dedent()
+		b.Line("}")
+	}
+
+	return b.String()
+}
+
+// GenerateUnionMarshalUnmarshal generates MarshalJSON/UnmarshalJSON for a union type.
+func GenerateUnionMarshalUnmarshal(cfg UnionTypeConfig) string {
+	b := NewCodeBuilder()
+
+	if len(cfg.FixedFields) == 0 {
+		// Simple case: no fixed properties — delegate to json.RawMessage
+		b.Line("func (t %s) MarshalJSON() ([]byte, error) {", cfg.TypeName)
+		b.Indent()
+		b.Line("b, err := t.union.MarshalJSON()")
+		b.Line("return b, err")
+		b.Dedent()
+		b.Line("}")
+		b.BlankLine()
+
+		b.Line("func (t *%s) UnmarshalJSON(b []byte) error {", cfg.TypeName)
+		b.Indent()
+		b.Line("err := t.union.UnmarshalJSON(b)")
+		b.Line("return err")
+		b.Dedent()
+		b.Line("}")
+	} else {
+		// Complex case: merge union data with fixed properties
+		b.Line("func (t %s) MarshalJSON() ([]byte, error) {", cfg.TypeName)
+		b.Indent()
+		b.Line("b, err := t.union.MarshalJSON()")
+		b.Line("if err != nil {")
+		b.Indent()
+		b.Line("return nil, err")
+		b.Dedent()
+		b.Line("}")
+		b.Line("object := make(map[string]json.RawMessage)")
+		b.Line("if t.union != nil {")
+		b.Indent()
+		b.Line("err = json.Unmarshal(b, &object)")
 		b.Line("if err != nil {")
 		b.Indent()
 		b.Line("return nil, err")
@@ -395,147 +534,80 @@ func GenerateUnionMarshalOneOf(name string, members []UnionMember) string {
 		b.Line("}")
 		b.Dedent()
 		b.Line("}")
-	}
 
-	b.BlankLine()
-	b.Line("if count != 1 {")
-	b.Indent()
-	b.Line("return nil, fmt.Errorf(\"%s: exactly one member must be set, got %%d\", count)", name)
-	b.Dedent()
-	b.Line("}")
-	b.BlankLine()
-	b.Line("return data, nil")
-
-	b.Dedent()
-	b.Line("}")
-
-	return b.String()
-}
-
-// GenerateUnionUnmarshalOneOf generates UnmarshalJSON for a oneOf type.
-func GenerateUnionUnmarshalOneOf(name string, members []UnionMember) string {
-	b := NewCodeBuilder()
-
-	b.Line("func (u *%s) UnmarshalJSON(data []byte) error {", name)
-	b.Indent()
-
-	b.Line("var successCount int")
-	b.BlankLine()
-
-	for _, m := range members {
-		b.Line("var v%d %s", m.Index, m.TypeName)
-		b.Line("if err := json.Unmarshal(data, &v%d); err == nil {", m.Index)
-		b.Indent()
-		b.Line("u.%s = &v%d", m.FieldName, m.Index)
-		b.Line("successCount++")
-		b.Dedent()
-		b.Line("}")
-		b.BlankLine()
-	}
-
-	b.Line("if successCount != 1 {")
-	b.Indent()
-	b.Line("return fmt.Errorf(\"%s: expected exactly one type to match, got %%d\", successCount)", name)
-	b.Dedent()
-	b.Line("}")
-	b.BlankLine()
-	b.Line("return nil")
-
-	b.Dedent()
-	b.Line("}")
-
-	return b.String()
-}
-
-// GenerateUnionMarshalAnyOf generates MarshalJSON for an anyOf type.
-func GenerateUnionMarshalAnyOf(name string, members []UnionMember) string {
-	b := NewCodeBuilder()
-
-	b.Line("func (u %s) MarshalJSON() ([]byte, error) {", name)
-	b.Indent()
-
-	// Check if any members are objects (need field merging)
-	hasObjects := false
-	for _, m := range members {
-		if !isPrimitiveType(m.TypeName) {
-			hasObjects = true
-			break
-		}
-	}
-
-	if hasObjects {
-		// Merge object fields
-		b.Line("result := make(map[string]any)")
-		b.BlankLine()
-
-		for _, m := range members {
-			b.Line("if u.%s != nil {", m.FieldName)
-			b.Indent()
-			if isPrimitiveType(m.TypeName) {
-				// For primitives, we can't merge - just return the value
-				b.Line("return json.Marshal(u.%s)", m.FieldName)
-			} else {
-				b.Line("data, err := json.Marshal(u.%s)", m.FieldName)
+		for _, f := range cfg.FixedFields {
+			if f.Required {
+				b.Line("object[%q], err = json.Marshal(t.%s)", f.JSONName, f.Name)
 				b.Line("if err != nil {")
 				b.Indent()
-				b.Line("return nil, err")
+				b.Line("return nil, fmt.Errorf(\"error marshaling '%s': %%w\", err)", f.JSONName)
 				b.Dedent()
 				b.Line("}")
-				b.Line("var m map[string]any")
-				b.Line("if err := json.Unmarshal(data, &m); err == nil {")
+			} else {
+				b.Line("if t.%s != nil {", f.Name)
 				b.Indent()
-				b.Line("for k, v := range m {")
+				b.Line("object[%q], err = json.Marshal(t.%s)", f.JSONName, f.Name)
+				b.Line("if err != nil {")
 				b.Indent()
-				b.Line("result[k] = v")
+				b.Line("return nil, fmt.Errorf(\"error marshaling '%s': %%w\", err)", f.JSONName)
 				b.Dedent()
 				b.Line("}")
 				b.Dedent()
 				b.Line("}")
 			}
-			b.Dedent()
-			b.Line("}")
 		}
 
+		b.Line("b, err = json.Marshal(object)")
+		b.Line("return b, err")
+		b.Dedent()
+		b.Line("}")
 		b.BlankLine()
-		b.Line("return json.Marshal(result)")
-	} else {
-		// All primitives - marshal the first non-nil one
-		for _, m := range members {
-			b.Line("if u.%s != nil {", m.FieldName)
+
+		b.Line("func (t *%s) UnmarshalJSON(b []byte) error {", cfg.TypeName)
+		b.Indent()
+		b.Line("err := t.union.UnmarshalJSON(b)")
+		b.Line("if err != nil {")
+		b.Indent()
+		b.Line("return err")
+		b.Dedent()
+		b.Line("}")
+		b.Line("object := make(map[string]json.RawMessage)")
+		b.Line("err = json.Unmarshal(b, &object)")
+		b.Line("if err != nil {")
+		b.Indent()
+		b.Line("return err")
+		b.Dedent()
+		b.Line("}")
+
+		for _, f := range cfg.FixedFields {
+			b.Line("if raw, found := object[%q]; found {", f.JSONName)
 			b.Indent()
-			b.Line("return json.Marshal(u.%s)", m.FieldName)
+			b.Line("err = json.Unmarshal(raw, &t.%s)", f.Name)
+			b.Line("if err != nil {")
+			b.Indent()
+			b.Line("return fmt.Errorf(\"error reading '%s': %%w\", err)", f.JSONName)
+			b.Dedent()
+			b.Line("}")
 			b.Dedent()
 			b.Line("}")
 		}
-		b.Line("return []byte(\"null\"), nil")
-	}
 
-	b.Dedent()
-	b.Line("}")
+		b.Line("return err")
+		b.Dedent()
+		b.Line("}")
+	}
 
 	return b.String()
 }
 
-// GenerateUnionUnmarshalAnyOf generates UnmarshalJSON for an anyOf type.
-func GenerateUnionUnmarshalAnyOf(name string, members []UnionMember) string {
+// GenerateUnionApplyDefaults generates ApplyDefaults for a union type.
+// With json.RawMessage storage, variant defaults cannot be applied until
+// the caller deserializes via As*(). This is a no-op for the union itself.
+func GenerateUnionApplyDefaults(name string) string {
 	b := NewCodeBuilder()
 
-	b.Line("func (u *%s) UnmarshalJSON(data []byte) error {", name)
-	b.Indent()
-
-	for _, m := range members {
-		b.Line("var v%d %s", m.Index, m.TypeName)
-		b.Line("if err := json.Unmarshal(data, &v%d); err == nil {", m.Index)
-		b.Indent()
-		b.Line("u.%s = &v%d", m.FieldName, m.Index)
-		b.Dedent()
-		b.Line("}")
-		b.BlankLine()
-	}
-
-	b.Line("return nil")
-
-	b.Dedent()
+	b.Line("// ApplyDefaults sets default values for fields that are nil.")
+	b.Line("func (t *%s) ApplyDefaults() {", name)
 	b.Line("}")
 
 	return b.String()

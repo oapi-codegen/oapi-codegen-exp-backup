@@ -172,63 +172,71 @@ func (s *AnyOfWithDefaults) ApplyDefaults() {
 
 // #/components/schemas/AnyOfWithDefaults/properties/value
 type AnyOfWithDefaultsValue struct {
-	AnyOfWithDefaultsValueAnyOf0 *AnyOfWithDefaultsValueAnyOf0
-	AnyOfWithDefaultsValueAnyOf1 *AnyOfWithDefaultsValueAnyOf1
+	union json.RawMessage
 }
 
-func (u AnyOfWithDefaultsValue) MarshalJSON() ([]byte, error) {
-	result := make(map[string]any)
-
-	if u.AnyOfWithDefaultsValueAnyOf0 != nil {
-		data, err := json.Marshal(u.AnyOfWithDefaultsValueAnyOf0)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-	if u.AnyOfWithDefaultsValueAnyOf1 != nil {
-		data, err := json.Marshal(u.AnyOfWithDefaultsValueAnyOf1)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-
-	return json.Marshal(result)
+// AsAnyOfWithDefaultsValueAnyOf0 returns the union data inside the AnyOfWithDefaultsValue as a AnyOfWithDefaultsValueAnyOf0.
+func (t AnyOfWithDefaultsValue) AsAnyOfWithDefaultsValueAnyOf0() (AnyOfWithDefaultsValueAnyOf0, error) {
+	var body AnyOfWithDefaultsValueAnyOf0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *AnyOfWithDefaultsValue) UnmarshalJSON(data []byte) error {
-	var v0 AnyOfWithDefaultsValueAnyOf0
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.AnyOfWithDefaultsValueAnyOf0 = &v0
-	}
+// FromAnyOfWithDefaultsValueAnyOf0 overwrites any union data inside the AnyOfWithDefaultsValue as the provided AnyOfWithDefaultsValueAnyOf0.
+func (t *AnyOfWithDefaultsValue) FromAnyOfWithDefaultsValueAnyOf0(v AnyOfWithDefaultsValueAnyOf0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v1 AnyOfWithDefaultsValueAnyOf1
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.AnyOfWithDefaultsValueAnyOf1 = &v1
+// MergeAnyOfWithDefaultsValueAnyOf0 performs a merge with any union data inside the AnyOfWithDefaultsValue, using the provided AnyOfWithDefaultsValueAnyOf0.
+func (t *AnyOfWithDefaultsValue) MergeAnyOfWithDefaultsValueAnyOf0(v AnyOfWithDefaultsValueAnyOf0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	return nil
+// AsAnyOfWithDefaultsValueAnyOf1 returns the union data inside the AnyOfWithDefaultsValue as a AnyOfWithDefaultsValueAnyOf1.
+func (t AnyOfWithDefaultsValue) AsAnyOfWithDefaultsValueAnyOf1() (AnyOfWithDefaultsValueAnyOf1, error) {
+	var body AnyOfWithDefaultsValueAnyOf1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAnyOfWithDefaultsValueAnyOf1 overwrites any union data inside the AnyOfWithDefaultsValue as the provided AnyOfWithDefaultsValueAnyOf1.
+func (t *AnyOfWithDefaultsValue) FromAnyOfWithDefaultsValueAnyOf1(v AnyOfWithDefaultsValueAnyOf1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAnyOfWithDefaultsValueAnyOf1 performs a merge with any union data inside the AnyOfWithDefaultsValue, using the provided AnyOfWithDefaultsValueAnyOf1.
+func (t *AnyOfWithDefaultsValue) MergeAnyOfWithDefaultsValueAnyOf1(v AnyOfWithDefaultsValueAnyOf1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t AnyOfWithDefaultsValue) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *AnyOfWithDefaultsValue) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *AnyOfWithDefaultsValue) ApplyDefaults() {
-	if u.AnyOfWithDefaultsValueAnyOf0 != nil {
-		u.AnyOfWithDefaultsValueAnyOf0.ApplyDefaults()
-	}
-	if u.AnyOfWithDefaultsValueAnyOf1 != nil {
-		u.AnyOfWithDefaultsValueAnyOf1.ApplyDefaults()
-	}
+func (t *AnyOfWithDefaultsValue) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfWithDefaults/properties/value/anyOf/0
@@ -268,67 +276,71 @@ func (s *OneOfWithDefaults) ApplyDefaults() {
 
 // #/components/schemas/OneOfWithDefaults/properties/variant
 type OneOfWithDefaultsVariant struct {
-	OneOfWithDefaultsVariantOneOf0 *OneOfWithDefaultsVariantOneOf0
-	OneOfWithDefaultsVariantOneOf1 *OneOfWithDefaultsVariantOneOf1
+	union json.RawMessage
 }
 
-func (u OneOfWithDefaultsVariant) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.OneOfWithDefaultsVariantOneOf0 != nil {
-		count++
-		data, err = json.Marshal(u.OneOfWithDefaultsVariantOneOf0)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.OneOfWithDefaultsVariantOneOf1 != nil {
-		count++
-		data, err = json.Marshal(u.OneOfWithDefaultsVariantOneOf1)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("OneOfWithDefaultsVariant: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsOneOfWithDefaultsVariantOneOf0 returns the union data inside the OneOfWithDefaultsVariant as a OneOfWithDefaultsVariantOneOf0.
+func (t OneOfWithDefaultsVariant) AsOneOfWithDefaultsVariantOneOf0() (OneOfWithDefaultsVariantOneOf0, error) {
+	var body OneOfWithDefaultsVariantOneOf0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *OneOfWithDefaultsVariant) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromOneOfWithDefaultsVariantOneOf0 overwrites any union data inside the OneOfWithDefaultsVariant as the provided OneOfWithDefaultsVariantOneOf0.
+func (t *OneOfWithDefaultsVariant) FromOneOfWithDefaultsVariantOneOf0(v OneOfWithDefaultsVariantOneOf0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 OneOfWithDefaultsVariantOneOf0
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.OneOfWithDefaultsVariantOneOf0 = &v0
-		successCount++
+// MergeOneOfWithDefaultsVariantOneOf0 performs a merge with any union data inside the OneOfWithDefaultsVariant, using the provided OneOfWithDefaultsVariantOneOf0.
+func (t *OneOfWithDefaultsVariant) MergeOneOfWithDefaultsVariantOneOf0(v OneOfWithDefaultsVariantOneOf0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 OneOfWithDefaultsVariantOneOf1
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.OneOfWithDefaultsVariantOneOf1 = &v1
-		successCount++
+// AsOneOfWithDefaultsVariantOneOf1 returns the union data inside the OneOfWithDefaultsVariant as a OneOfWithDefaultsVariantOneOf1.
+func (t OneOfWithDefaultsVariant) AsOneOfWithDefaultsVariantOneOf1() (OneOfWithDefaultsVariantOneOf1, error) {
+	var body OneOfWithDefaultsVariantOneOf1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOneOfWithDefaultsVariantOneOf1 overwrites any union data inside the OneOfWithDefaultsVariant as the provided OneOfWithDefaultsVariantOneOf1.
+func (t *OneOfWithDefaultsVariant) FromOneOfWithDefaultsVariantOneOf1(v OneOfWithDefaultsVariantOneOf1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOneOfWithDefaultsVariantOneOf1 performs a merge with any union data inside the OneOfWithDefaultsVariant, using the provided OneOfWithDefaultsVariantOneOf1.
+func (t *OneOfWithDefaultsVariant) MergeOneOfWithDefaultsVariantOneOf1(v OneOfWithDefaultsVariantOneOf1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("OneOfWithDefaultsVariant: expected exactly one type to match, got %d", successCount)
-	}
+func (t OneOfWithDefaultsVariant) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *OneOfWithDefaultsVariant) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *OneOfWithDefaultsVariant) ApplyDefaults() {
-	if u.OneOfWithDefaultsVariantOneOf0 != nil {
-		u.OneOfWithDefaultsVariantOneOf0.ApplyDefaults()
-	}
-	if u.OneOfWithDefaultsVariantOneOf1 != nil {
-		u.OneOfWithDefaultsVariantOneOf1.ApplyDefaults()
-	}
+func (t *OneOfWithDefaultsVariant) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfWithDefaults/properties/variant/oneOf/0
@@ -505,4 +517,31 @@ var openAPISpec = decodeOpenAPISpecCached()
 // GetOpenAPISpecJSON returns the raw OpenAPI spec as JSON bytes.
 func GetOpenAPISpecJSON() ([]byte, error) {
 	return openAPISpec()
+}
+
+// JSONMerge merges two JSON-encoded objects. Fields from patch override
+// fields in base. Both arguments must be valid JSON objects (or nil/null).
+func JSONMerge(base, patch json.RawMessage) (json.RawMessage, error) {
+	if len(base) == 0 || string(base) == "null" {
+		return patch, nil
+	}
+	if len(patch) == 0 || string(patch) == "null" {
+		return base, nil
+	}
+
+	var baseMap map[string]json.RawMessage
+	if err := json.Unmarshal(base, &baseMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling base: %w", err)
+	}
+
+	var patchMap map[string]json.RawMessage
+	if err := json.Unmarshal(patch, &patchMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling patch: %w", err)
+	}
+
+	for k, v := range patchMap {
+		baseMap[k] = v
+	}
+
+	return json.Marshal(baseMap)
 }

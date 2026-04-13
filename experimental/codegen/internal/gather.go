@@ -3,6 +3,7 @@ package codegen
 import (
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 	v3 "github.com/pb33f/libopenapi/datamodel/high/v3"
@@ -617,6 +618,42 @@ func (g *gatherer) gatherFromSchema(schema *base.Schema, basePath SchemaPath, pa
 		if parent != nil && oneOfDesc != nil {
 			parent.OneOf = append(parent.OneOf, oneOfDesc)
 		}
+	}
+
+	// Extract discriminator information for oneOf/anyOf schemas
+	if parent != nil && schema.Discriminator != nil && schema.Discriminator.PropertyName != "" {
+		disc := schema.Discriminator
+		info := &DiscriminatorInfo{
+			PropertyName: disc.PropertyName,
+			Mapping:      make(map[string]string),
+		}
+
+		if disc.Mapping != nil && disc.Mapping.Len() > 0 {
+			// Explicit mapping from spec
+			info.IsExplicit = true
+			for pair := disc.Mapping.First(); pair != nil; pair = pair.Next() {
+				info.Mapping[pair.Key()] = pair.Value()
+			}
+		} else {
+			// Implicit mapping: infer from $ref schema names
+			info.IsExplicit = false
+			members := schema.OneOf
+			if len(members) == 0 {
+				members = schema.AnyOf
+			}
+			for _, proxy := range members {
+				if proxy.IsReference() {
+					ref := proxy.GetReference()
+					parts := strings.Split(ref, "/")
+					if len(parts) > 0 {
+						schemaName := parts[len(parts)-1]
+						info.Mapping[schemaName] = ref
+					}
+				}
+			}
+		}
+
+		parent.Discriminator = info
 	}
 
 	// AdditionalProperties (if it's a schema, not a boolean)

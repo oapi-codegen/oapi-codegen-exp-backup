@@ -288,24 +288,34 @@ func TestDuplicateOneOfAcrossContentTypes(t *testing.T) {
 	assertEqual(t, "/name", *patch[0].Path)
 
 	// oneOf union types for json-patch+json content type
-	union1 := PatchResourceJSONResponse2001{
-		Resource: &Resource{
-			ID:     ptr("r-2"),
-			Name:   ptr("resource-2"),
-			Status: ptr("active"),
-		},
+	var union1 PatchResourceJSONResponse2001
+	if err := union1.FromResource(Resource{
+		ID:     ptr("r-2"),
+		Name:   ptr("resource-2"),
+		Status: ptr("active"),
+	}); err != nil {
+		t.Fatalf("FromResource failed: %v", err)
 	}
-	assertEqual(t, "r-2", *union1.Resource.ID)
+	r1, err := union1.AsResource()
+	if err != nil {
+		t.Fatalf("AsResource failed: %v", err)
+	}
+	assertEqual(t, "r-2", *r1.ID)
 
 	// oneOf union types for json-patch-query+json content type (same structure, separate type)
-	union2 := PatchResourceJSONResponse2002{
-		Resource: &Resource{
-			ID:     ptr("r-3"),
-			Name:   ptr("resource-3"),
-			Status: ptr("active"),
-		},
+	var union2 PatchResourceJSONResponse2002
+	if err := union2.FromResource(Resource{
+		ID:     ptr("r-3"),
+		Name:   ptr("resource-3"),
+		Status: ptr("active"),
+	}); err != nil {
+		t.Fatalf("FromResource failed: %v", err)
 	}
-	assertEqual(t, "r-3", *union2.Resource.ID)
+	r2, err := union2.AsResource()
+	if err != nil {
+		t.Fatalf("AsResource failed: %v", err)
+	}
+	assertEqual(t, "r-3", *r2.ID)
 
 	// Array-of-Resource oneOf members
 	arrMember1 := PatchResourcesID200ResponseJSONOneOf11([]Resource{
@@ -352,29 +362,34 @@ func TestResourceMVORequestBodyTypes(t *testing.T) {
 }
 
 // TestOneOfUnionMarshalRoundTrip verifies that the oneOf union types for Pattern J
-// can marshal and unmarshal correctly.
+// can marshal and unmarshal correctly using As/From accessors.
 func TestOneOfUnionMarshalRoundTrip(t *testing.T) {
-	// Marshal a union with Resource member set
-	original := PatchResourceJSONResponse2001{
-		Resource: &Resource{
-			ID:     ptr("r-1"),
-			Name:   ptr("test"),
-			Status: ptr("active"),
-		},
+	// Set a Resource via From, marshal, unmarshal, extract via As
+	var original PatchResourceJSONResponse2001
+	if err := original.FromResource(Resource{
+		ID:     ptr("r-1"),
+		Name:   ptr("test"),
+		Status: ptr("active"),
+	}); err != nil {
+		t.Fatalf("FromResource failed: %v", err)
 	}
+
 	data, err := json.Marshal(original)
 	if err != nil {
 		t.Fatalf("marshal PatchResourceJSONResponse2001 failed: %v", err)
 	}
 
-	// Unmarshal back — note: oneOf with a struct vs array vs string may have
-	// ambiguity, so we just verify the marshaling doesn't error
 	var decoded PatchResourceJSONResponse2001
 	if err := json.Unmarshal(data, &decoded); err != nil {
-		// oneOf unmarshal may match multiple types for JSON objects;
-		// this is expected behavior for the oneOf pattern
-		t.Logf("unmarshal note: %v (expected for overlapping oneOf members)", err)
+		t.Fatalf("unmarshal failed: %v", err)
 	}
+
+	got, err := decoded.AsResource()
+	if err != nil {
+		t.Fatalf("AsResource failed: %v", err)
+	}
+	assertEqual(t, "r-1", *got.ID)
+	assertEqual(t, "test", *got.Name)
 }
 
 // TestJSONRoundTrip verifies that the generated types marshal/unmarshal correctly.

@@ -413,6 +413,9 @@ func generateHelper(name string, ctx *CodegenContext) (string, error) {
 	case "marshal_form":
 		ctx.AddTemplateImports(templates.MarshalFormHelperTemplate.Imports)
 		return generateMarshalFormHelper()
+	case "json_merge":
+		ctx.AddTemplateImports(templates.JSONMergeHelperTemplate.Imports)
+		return generateJSONMergeHelper()
 	default:
 		return "", fmt.Errorf("unknown helper: %s", name)
 	}
@@ -434,6 +437,27 @@ func generateMarshalFormHelper() (string, error) {
 	var result strings.Builder
 	if err := tmpl.Execute(&result, nil); err != nil {
 		return "", fmt.Errorf("executing form helper template: %w", err)
+	}
+
+	return result.String(), nil
+}
+
+// generateJSONMergeHelper generates the JSONMerge helper function.
+func generateJSONMergeHelper() (string, error) {
+	tmplInfo := templates.JSONMergeHelperTemplate
+	content, err := templates.TemplateFS.ReadFile("files/" + tmplInfo.Template)
+	if err != nil {
+		return "", fmt.Errorf("reading json merge helper template: %w", err)
+	}
+
+	tmpl, err := template.New(tmplInfo.Name).Parse(string(content))
+	if err != nil {
+		return "", fmt.Errorf("parsing json merge helper template: %w", err)
+	}
+
+	var result strings.Builder
+	if err := tmpl.Execute(&result, nil); err != nil {
+		return "", fmt.Errorf("executing json merge helper template: %w", err)
 	}
 
 	return result.String(), nil
@@ -1012,17 +1036,29 @@ func generateAnyOfType(gen *TypeGenerator, desc *SchemaDescriptor) string {
 		return ""
 	}
 
-	// anyOf types only need encoding/json (not fmt like oneOf)
-	gen.AddJSONImport()
+	gen.AddJSONImports()
 
-	doc := extractDescription(desc.Schema)
-	code := GenerateUnionType(desc.ShortName, members, false, doc)
+	cfg := UnionTypeConfig{
+		TypeName:      desc.ShortName,
+		Members:       members,
+		IsOneOf:       false,
+		Doc:           extractDescription(desc.Schema),
+		Discriminator: desc.Discriminator,
+		HelperPrefix:  gen.helperPrefix(),
+	}
 
-	marshalCode := GenerateUnionMarshalAnyOf(desc.ShortName, members)
-	unmarshalCode := GenerateUnionUnmarshalAnyOf(desc.ShortName, members)
-	applyDefaultsCode := GenerateUnionApplyDefaults(desc.ShortName, members)
-
-	code += "\n" + marshalCode + "\n" + unmarshalCode + "\n" + applyDefaultsCode
+	code := GenerateUnionType(cfg)
+	code += "\n" + GenerateUnionAccessors(cfg)
+	if discCode := GenerateUnionDiscriminator(cfg); discCode != "" {
+		gen.AddImport("errors")
+		code += "\n" + discCode
+	}
+	code += "\n" + GenerateUnionMarshalUnmarshal(cfg)
+	if len(cfg.FixedFields) > 0 {
+		gen.AddImport("fmt")
+	}
+	gen.NeedHelper("json_merge")
+	code += "\n" + GenerateUnionApplyDefaults(desc.ShortName)
 
 	return code
 }
@@ -1034,17 +1070,29 @@ func generateOneOfType(gen *TypeGenerator, desc *SchemaDescriptor) string {
 		return ""
 	}
 
-	// Union types need encoding/json and fmt for marshal/unmarshal
 	gen.AddJSONImports()
 
-	doc := extractDescription(desc.Schema)
-	code := GenerateUnionType(desc.ShortName, members, true, doc)
+	cfg := UnionTypeConfig{
+		TypeName:      desc.ShortName,
+		Members:       members,
+		IsOneOf:       true,
+		Doc:           extractDescription(desc.Schema),
+		Discriminator: desc.Discriminator,
+		HelperPrefix:  gen.helperPrefix(),
+	}
 
-	marshalCode := GenerateUnionMarshalOneOf(desc.ShortName, members)
-	unmarshalCode := GenerateUnionUnmarshalOneOf(desc.ShortName, members)
-	applyDefaultsCode := GenerateUnionApplyDefaults(desc.ShortName, members)
-
-	code += "\n" + marshalCode + "\n" + unmarshalCode + "\n" + applyDefaultsCode
+	code := GenerateUnionType(cfg)
+	code += "\n" + GenerateUnionAccessors(cfg)
+	if discCode := GenerateUnionDiscriminator(cfg); discCode != "" {
+		gen.AddImport("errors")
+		code += "\n" + discCode
+	}
+	code += "\n" + GenerateUnionMarshalUnmarshal(cfg)
+	if len(cfg.FixedFields) > 0 {
+		gen.AddImport("fmt")
+	}
+	gen.NeedHelper("json_merge")
+	code += "\n" + GenerateUnionApplyDefaults(desc.ShortName)
 
 	return code
 }
@@ -1095,17 +1143,27 @@ func collectUnionMembers(gen *TypeGenerator, parentDesc *SchemaDescriptor, membe
 		}
 	}
 
+	// Build reverse mapping: $ref path → []discriminator values
+	refToDiscValues := make(map[string][]string)
+	if parentDesc != nil && parentDesc.Discriminator != nil {
+		for discValue, refPath := range parentDesc.Discriminator.Mapping {
+			refToDiscValues[refPath] = append(refToDiscValues[refPath], discValue)
+		}
+	}
+
 	for i, proxy := range memberProxies {
 		var memberType string
-		var fieldName string
+		var methodName string
 		var hasApplyDefaults bool
+		var discValues []string
 
 		if proxy.IsReference() {
 			ref := proxy.GetReference()
 			if target, ok := gen.schemaIndex[ref]; ok {
 				memberType = target.ShortName
-				fieldName = target.ShortName
+				methodName = target.ShortName
 				hasApplyDefaults = schemaHasApplyDefaults(target.Schema)
+				discValues = refToDiscValues[ref]
 			} else {
 				continue
 			}
@@ -1124,23 +1182,23 @@ func collectUnionMembers(gen *TypeGenerator, parentDesc *SchemaDescriptor, membe
 
 			if desc, ok := descByPath[memberPath.String()]; ok && desc.ShortName != "" {
 				memberType = desc.ShortName
-				fieldName = desc.ShortName
+				methodName = desc.ShortName
 				hasApplyDefaults = schemaHasApplyDefaults(desc.Schema)
 			} else {
 				// This is a primitive type that doesn't have a named type
 				goType := gen.goTypeForSchema(schema, nil)
 				memberType = goType
-				// Create a field name based on the type
-				fieldName = gen.converter.ToTypeName(goType) + fmt.Sprintf("%d", i)
+				methodName = gen.converter.ToTypeName(goType) + fmt.Sprintf("%d", i)
 				hasApplyDefaults = false // Primitive types don't have ApplyDefaults
 			}
 		}
 
 		members = append(members, UnionMember{
-			FieldName:        fieldName,
-			TypeName:         memberType,
-			Index:            i,
-			HasApplyDefaults: hasApplyDefaults,
+			TypeName:            memberType,
+			MethodName:          methodName,
+			Index:               i,
+			HasApplyDefaults:    hasApplyDefaults,
+			DiscriminatorValues: discValues,
 		})
 	}
 

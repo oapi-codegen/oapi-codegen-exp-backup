@@ -438,167 +438,234 @@ func (s *AllOfInlineOnly) ApplyDefaults() {
 
 // #/components/schemas/AnyOfPrimitives
 type AnyOfPrimitives struct {
-	String0 *string
-	Int1    *int
+	union json.RawMessage
 }
 
-func (u AnyOfPrimitives) MarshalJSON() ([]byte, error) {
-	if u.String0 != nil {
-		return json.Marshal(u.String0)
-	}
-	if u.Int1 != nil {
-		return json.Marshal(u.Int1)
-	}
-	return []byte("null"), nil
+// AsString0 returns the union data inside the AnyOfPrimitives as a string.
+func (t AnyOfPrimitives) AsString0() (string, error) {
+	var body string
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *AnyOfPrimitives) UnmarshalJSON(data []byte) error {
-	var v0 string
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.String0 = &v0
-	}
+// FromString0 overwrites any union data inside the AnyOfPrimitives as the provided string.
+func (t *AnyOfPrimitives) FromString0(v string) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v1 int
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.Int1 = &v1
+// MergeString0 performs a merge with any union data inside the AnyOfPrimitives, using the provided string.
+func (t *AnyOfPrimitives) MergeString0(v string) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	return nil
+// AsInt1 returns the union data inside the AnyOfPrimitives as a int.
+func (t AnyOfPrimitives) AsInt1() (int, error) {
+	var body int
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInt1 overwrites any union data inside the AnyOfPrimitives as the provided int.
+func (t *AnyOfPrimitives) FromInt1(v int) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInt1 performs a merge with any union data inside the AnyOfPrimitives, using the provided int.
+func (t *AnyOfPrimitives) MergeInt1(v int) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t AnyOfPrimitives) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *AnyOfPrimitives) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *AnyOfPrimitives) ApplyDefaults() {
+func (t *AnyOfPrimitives) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfObjects
 type AnyOfObjects struct {
-	SimpleObject   *SimpleObject
-	BaseProperties *BaseProperties
+	union json.RawMessage
 }
 
-func (u AnyOfObjects) MarshalJSON() ([]byte, error) {
-	result := make(map[string]any)
-
-	if u.SimpleObject != nil {
-		data, err := json.Marshal(u.SimpleObject)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-	if u.BaseProperties != nil {
-		data, err := json.Marshal(u.BaseProperties)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-
-	return json.Marshal(result)
+// AsSimpleObject returns the union data inside the AnyOfObjects as a SimpleObject.
+func (t AnyOfObjects) AsSimpleObject() (SimpleObject, error) {
+	var body SimpleObject
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *AnyOfObjects) UnmarshalJSON(data []byte) error {
-	var v0 SimpleObject
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.SimpleObject = &v0
-	}
+// FromSimpleObject overwrites any union data inside the AnyOfObjects as the provided SimpleObject.
+func (t *AnyOfObjects) FromSimpleObject(v SimpleObject) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v1 BaseProperties
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.BaseProperties = &v1
+// MergeSimpleObject performs a merge with any union data inside the AnyOfObjects, using the provided SimpleObject.
+func (t *AnyOfObjects) MergeSimpleObject(v SimpleObject) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	return nil
+// AsBaseProperties returns the union data inside the AnyOfObjects as a BaseProperties.
+func (t AnyOfObjects) AsBaseProperties() (BaseProperties, error) {
+	var body BaseProperties
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromBaseProperties overwrites any union data inside the AnyOfObjects as the provided BaseProperties.
+func (t *AnyOfObjects) FromBaseProperties(v BaseProperties) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeBaseProperties performs a merge with any union data inside the AnyOfObjects, using the provided BaseProperties.
+func (t *AnyOfObjects) MergeBaseProperties(v BaseProperties) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t AnyOfObjects) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *AnyOfObjects) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *AnyOfObjects) ApplyDefaults() {
-	if u.SimpleObject != nil {
-		u.SimpleObject.ApplyDefaults()
-	}
-	if u.BaseProperties != nil {
-		u.BaseProperties.ApplyDefaults()
-	}
+func (t *AnyOfObjects) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfMixed
 type AnyOfMixed struct {
-	String0          *string
-	SimpleObject     *SimpleObject
-	AnyOfMixedAnyOf2 *AnyOfMixedAnyOf2
+	union json.RawMessage
 }
 
-func (u AnyOfMixed) MarshalJSON() ([]byte, error) {
-	result := make(map[string]any)
-
-	if u.String0 != nil {
-		return json.Marshal(u.String0)
-	}
-	if u.SimpleObject != nil {
-		data, err := json.Marshal(u.SimpleObject)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-	if u.AnyOfMixedAnyOf2 != nil {
-		data, err := json.Marshal(u.AnyOfMixedAnyOf2)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-
-	return json.Marshal(result)
+// AsString0 returns the union data inside the AnyOfMixed as a string.
+func (t AnyOfMixed) AsString0() (string, error) {
+	var body string
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *AnyOfMixed) UnmarshalJSON(data []byte) error {
-	var v0 string
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.String0 = &v0
-	}
+// FromString0 overwrites any union data inside the AnyOfMixed as the provided string.
+func (t *AnyOfMixed) FromString0(v string) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v1 SimpleObject
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.SimpleObject = &v1
+// MergeString0 performs a merge with any union data inside the AnyOfMixed, using the provided string.
+func (t *AnyOfMixed) MergeString0(v string) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v2 AnyOfMixedAnyOf2
-	if err := json.Unmarshal(data, &v2); err == nil {
-		u.AnyOfMixedAnyOf2 = &v2
+// AsSimpleObject returns the union data inside the AnyOfMixed as a SimpleObject.
+func (t AnyOfMixed) AsSimpleObject() (SimpleObject, error) {
+	var body SimpleObject
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSimpleObject overwrites any union data inside the AnyOfMixed as the provided SimpleObject.
+func (t *AnyOfMixed) FromSimpleObject(v SimpleObject) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSimpleObject performs a merge with any union data inside the AnyOfMixed, using the provided SimpleObject.
+func (t *AnyOfMixed) MergeSimpleObject(v SimpleObject) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	return nil
+// AsAnyOfMixedAnyOf2 returns the union data inside the AnyOfMixed as a AnyOfMixedAnyOf2.
+func (t AnyOfMixed) AsAnyOfMixedAnyOf2() (AnyOfMixedAnyOf2, error) {
+	var body AnyOfMixedAnyOf2
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAnyOfMixedAnyOf2 overwrites any union data inside the AnyOfMixed as the provided AnyOfMixedAnyOf2.
+func (t *AnyOfMixed) FromAnyOfMixedAnyOf2(v AnyOfMixedAnyOf2) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAnyOfMixedAnyOf2 performs a merge with any union data inside the AnyOfMixed, using the provided AnyOfMixedAnyOf2.
+func (t *AnyOfMixed) MergeAnyOfMixedAnyOf2(v AnyOfMixedAnyOf2) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t AnyOfMixed) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *AnyOfMixed) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *AnyOfMixed) ApplyDefaults() {
-	if u.SimpleObject != nil {
-		u.SimpleObject.ApplyDefaults()
-	}
-	if u.AnyOfMixedAnyOf2 != nil {
-		u.AnyOfMixedAnyOf2.ApplyDefaults()
-	}
+func (t *AnyOfMixed) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfMixed/anyOf/2
@@ -624,45 +691,96 @@ func (s *ObjectWithAnyOfProperty) ApplyDefaults() {
 
 // #/components/schemas/ObjectWithAnyOfProperty/properties/value
 type ObjectWithAnyOfPropertyValue struct {
-	String0 *string
-	Int1    *int
-	Bool2   *bool
+	union json.RawMessage
 }
 
-func (u ObjectWithAnyOfPropertyValue) MarshalJSON() ([]byte, error) {
-	if u.String0 != nil {
-		return json.Marshal(u.String0)
-	}
-	if u.Int1 != nil {
-		return json.Marshal(u.Int1)
-	}
-	if u.Bool2 != nil {
-		return json.Marshal(u.Bool2)
-	}
-	return []byte("null"), nil
+// AsString0 returns the union data inside the ObjectWithAnyOfPropertyValue as a string.
+func (t ObjectWithAnyOfPropertyValue) AsString0() (string, error) {
+	var body string
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *ObjectWithAnyOfPropertyValue) UnmarshalJSON(data []byte) error {
-	var v0 string
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.String0 = &v0
-	}
+// FromString0 overwrites any union data inside the ObjectWithAnyOfPropertyValue as the provided string.
+func (t *ObjectWithAnyOfPropertyValue) FromString0(v string) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v1 int
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.Int1 = &v1
+// MergeString0 performs a merge with any union data inside the ObjectWithAnyOfPropertyValue, using the provided string.
+func (t *ObjectWithAnyOfPropertyValue) MergeString0(v string) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v2 bool
-	if err := json.Unmarshal(data, &v2); err == nil {
-		u.Bool2 = &v2
+// AsInt1 returns the union data inside the ObjectWithAnyOfPropertyValue as a int.
+func (t ObjectWithAnyOfPropertyValue) AsInt1() (int, error) {
+	var body int
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInt1 overwrites any union data inside the ObjectWithAnyOfPropertyValue as the provided int.
+func (t *ObjectWithAnyOfPropertyValue) FromInt1(v int) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInt1 performs a merge with any union data inside the ObjectWithAnyOfPropertyValue, using the provided int.
+func (t *ObjectWithAnyOfPropertyValue) MergeInt1(v int) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	return nil
+// AsBool2 returns the union data inside the ObjectWithAnyOfPropertyValue as a bool.
+func (t ObjectWithAnyOfPropertyValue) AsBool2() (bool, error) {
+	var body bool
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromBool2 overwrites any union data inside the ObjectWithAnyOfPropertyValue as the provided bool.
+func (t *ObjectWithAnyOfPropertyValue) FromBool2(v bool) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeBool2 performs a merge with any union data inside the ObjectWithAnyOfPropertyValue, using the provided bool.
+func (t *ObjectWithAnyOfPropertyValue) MergeBool2(v bool) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ObjectWithAnyOfPropertyValue) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ObjectWithAnyOfPropertyValue) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *ObjectWithAnyOfPropertyValue) ApplyDefaults() {
+func (t *ObjectWithAnyOfPropertyValue) ApplyDefaults() {
 }
 
 // #/components/schemas/ArrayOfAnyOf
@@ -670,258 +788,328 @@ type ArrayOfAnyOf = []ArrayOfAnyOfItem
 
 // #/components/schemas/ArrayOfAnyOf/items
 type ArrayOfAnyOfItem struct {
-	SimpleObject   *SimpleObject
-	BaseProperties *BaseProperties
+	union json.RawMessage
 }
 
-func (u ArrayOfAnyOfItem) MarshalJSON() ([]byte, error) {
-	result := make(map[string]any)
-
-	if u.SimpleObject != nil {
-		data, err := json.Marshal(u.SimpleObject)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-	if u.BaseProperties != nil {
-		data, err := json.Marshal(u.BaseProperties)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-
-	return json.Marshal(result)
+// AsSimpleObject returns the union data inside the ArrayOfAnyOfItem as a SimpleObject.
+func (t ArrayOfAnyOfItem) AsSimpleObject() (SimpleObject, error) {
+	var body SimpleObject
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *ArrayOfAnyOfItem) UnmarshalJSON(data []byte) error {
-	var v0 SimpleObject
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.SimpleObject = &v0
-	}
+// FromSimpleObject overwrites any union data inside the ArrayOfAnyOfItem as the provided SimpleObject.
+func (t *ArrayOfAnyOfItem) FromSimpleObject(v SimpleObject) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v1 BaseProperties
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.BaseProperties = &v1
+// MergeSimpleObject performs a merge with any union data inside the ArrayOfAnyOfItem, using the provided SimpleObject.
+func (t *ArrayOfAnyOfItem) MergeSimpleObject(v SimpleObject) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	return nil
+// AsBaseProperties returns the union data inside the ArrayOfAnyOfItem as a BaseProperties.
+func (t ArrayOfAnyOfItem) AsBaseProperties() (BaseProperties, error) {
+	var body BaseProperties
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromBaseProperties overwrites any union data inside the ArrayOfAnyOfItem as the provided BaseProperties.
+func (t *ArrayOfAnyOfItem) FromBaseProperties(v BaseProperties) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeBaseProperties performs a merge with any union data inside the ArrayOfAnyOfItem, using the provided BaseProperties.
+func (t *ArrayOfAnyOfItem) MergeBaseProperties(v BaseProperties) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ArrayOfAnyOfItem) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ArrayOfAnyOfItem) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *ArrayOfAnyOfItem) ApplyDefaults() {
-	if u.SimpleObject != nil {
-		u.SimpleObject.ApplyDefaults()
-	}
-	if u.BaseProperties != nil {
-		u.BaseProperties.ApplyDefaults()
-	}
+func (t *ArrayOfAnyOfItem) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfSimple
 type OneOfSimple struct {
-	SimpleObject   *SimpleObject
-	BaseProperties *BaseProperties
+	union json.RawMessage
 }
 
-func (u OneOfSimple) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.SimpleObject != nil {
-		count++
-		data, err = json.Marshal(u.SimpleObject)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.BaseProperties != nil {
-		count++
-		data, err = json.Marshal(u.BaseProperties)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("OneOfSimple: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsSimpleObject returns the union data inside the OneOfSimple as a SimpleObject.
+func (t OneOfSimple) AsSimpleObject() (SimpleObject, error) {
+	var body SimpleObject
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *OneOfSimple) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromSimpleObject overwrites any union data inside the OneOfSimple as the provided SimpleObject.
+func (t *OneOfSimple) FromSimpleObject(v SimpleObject) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 SimpleObject
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.SimpleObject = &v0
-		successCount++
+// MergeSimpleObject performs a merge with any union data inside the OneOfSimple, using the provided SimpleObject.
+func (t *OneOfSimple) MergeSimpleObject(v SimpleObject) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 BaseProperties
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.BaseProperties = &v1
-		successCount++
+// AsBaseProperties returns the union data inside the OneOfSimple as a BaseProperties.
+func (t OneOfSimple) AsBaseProperties() (BaseProperties, error) {
+	var body BaseProperties
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromBaseProperties overwrites any union data inside the OneOfSimple as the provided BaseProperties.
+func (t *OneOfSimple) FromBaseProperties(v BaseProperties) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeBaseProperties performs a merge with any union data inside the OneOfSimple, using the provided BaseProperties.
+func (t *OneOfSimple) MergeBaseProperties(v BaseProperties) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("OneOfSimple: expected exactly one type to match, got %d", successCount)
-	}
+func (t OneOfSimple) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *OneOfSimple) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *OneOfSimple) ApplyDefaults() {
-	if u.SimpleObject != nil {
-		u.SimpleObject.ApplyDefaults()
-	}
-	if u.BaseProperties != nil {
-		u.BaseProperties.ApplyDefaults()
-	}
+func (t *OneOfSimple) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfWithDiscriminator
 type OneOfWithDiscriminator struct {
-	Cat *Cat
-	Dog *Dog
+	union json.RawMessage
 }
 
-func (u OneOfWithDiscriminator) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.Cat != nil {
-		count++
-		data, err = json.Marshal(u.Cat)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.Dog != nil {
-		count++
-		data, err = json.Marshal(u.Dog)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("OneOfWithDiscriminator: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsCat returns the union data inside the OneOfWithDiscriminator as a Cat.
+func (t OneOfWithDiscriminator) AsCat() (Cat, error) {
+	var body Cat
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *OneOfWithDiscriminator) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromCat overwrites any union data inside the OneOfWithDiscriminator as the provided Cat.
+func (t *OneOfWithDiscriminator) FromCat(v Cat) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 Cat
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.Cat = &v0
-		successCount++
+// MergeCat performs a merge with any union data inside the OneOfWithDiscriminator, using the provided Cat.
+func (t *OneOfWithDiscriminator) MergeCat(v Cat) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 Dog
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.Dog = &v1
-		successCount++
+// AsDog returns the union data inside the OneOfWithDiscriminator as a Dog.
+func (t OneOfWithDiscriminator) AsDog() (Dog, error) {
+	var body Dog
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDog overwrites any union data inside the OneOfWithDiscriminator as the provided Dog.
+func (t *OneOfWithDiscriminator) FromDog(v Dog) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDog performs a merge with any union data inside the OneOfWithDiscriminator, using the provided Dog.
+func (t *OneOfWithDiscriminator) MergeDog(v Dog) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("OneOfWithDiscriminator: expected exactly one type to match, got %d", successCount)
+// Discriminator extracts the discriminator property value from the union data.
+func (t OneOfWithDiscriminator) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"petType"`
 	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
 
-	return nil
+// ValueByDiscriminator returns the union member based on the discriminator value.
+func (t OneOfWithDiscriminator) ValueByDiscriminator() (any, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "Cat":
+		return t.AsCat()
+	case "Dog":
+		return t.AsDog()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t OneOfWithDiscriminator) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OneOfWithDiscriminator) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *OneOfWithDiscriminator) ApplyDefaults() {
-	if u.Cat != nil {
-		u.Cat.ApplyDefaults()
-	}
-	if u.Dog != nil {
-		u.Dog.ApplyDefaults()
-	}
+func (t *OneOfWithDiscriminator) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfWithDiscriminatorMapping
 type OneOfWithDiscriminatorMapping struct {
-	Cat *Cat
-	Dog *Dog
+	union json.RawMessage
 }
 
-func (u OneOfWithDiscriminatorMapping) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.Cat != nil {
-		count++
-		data, err = json.Marshal(u.Cat)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.Dog != nil {
-		count++
-		data, err = json.Marshal(u.Dog)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("OneOfWithDiscriminatorMapping: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsCat returns the union data inside the OneOfWithDiscriminatorMapping as a Cat.
+func (t OneOfWithDiscriminatorMapping) AsCat() (Cat, error) {
+	var body Cat
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *OneOfWithDiscriminatorMapping) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromCat overwrites any union data inside the OneOfWithDiscriminatorMapping as the provided Cat.
+func (t *OneOfWithDiscriminatorMapping) FromCat(v Cat) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 Cat
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.Cat = &v0
-		successCount++
+// MergeCat performs a merge with any union data inside the OneOfWithDiscriminatorMapping, using the provided Cat.
+func (t *OneOfWithDiscriminatorMapping) MergeCat(v Cat) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 Dog
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.Dog = &v1
-		successCount++
+// AsDog returns the union data inside the OneOfWithDiscriminatorMapping as a Dog.
+func (t OneOfWithDiscriminatorMapping) AsDog() (Dog, error) {
+	var body Dog
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDog overwrites any union data inside the OneOfWithDiscriminatorMapping as the provided Dog.
+func (t *OneOfWithDiscriminatorMapping) FromDog(v Dog) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDog performs a merge with any union data inside the OneOfWithDiscriminatorMapping, using the provided Dog.
+func (t *OneOfWithDiscriminatorMapping) MergeDog(v Dog) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("OneOfWithDiscriminatorMapping: expected exactly one type to match, got %d", successCount)
+// Discriminator extracts the discriminator property value from the union data.
+func (t OneOfWithDiscriminatorMapping) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"petType"`
 	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
 
-	return nil
+// ValueByDiscriminator returns the union member based on the discriminator value.
+func (t OneOfWithDiscriminatorMapping) ValueByDiscriminator() (any, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "cat":
+		return t.AsCat()
+	case "dog":
+		return t.AsDog()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t OneOfWithDiscriminatorMapping) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OneOfWithDiscriminatorMapping) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *OneOfWithDiscriminatorMapping) ApplyDefaults() {
-	if u.Cat != nil {
-		u.Cat.ApplyDefaults()
-	}
-	if u.Dog != nil {
-		u.Dog.ApplyDefaults()
-	}
+func (t *OneOfWithDiscriminatorMapping) ApplyDefaults() {
 }
 
 // #/components/schemas/Cat
@@ -948,67 +1136,71 @@ func (s *Dog) ApplyDefaults() {
 
 // #/components/schemas/OneOfInline
 type OneOfInline struct {
-	OneOfInlineOneOf0 *OneOfInlineOneOf0
-	OneOfInlineOneOf1 *OneOfInlineOneOf1
+	union json.RawMessage
 }
 
-func (u OneOfInline) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.OneOfInlineOneOf0 != nil {
-		count++
-		data, err = json.Marshal(u.OneOfInlineOneOf0)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.OneOfInlineOneOf1 != nil {
-		count++
-		data, err = json.Marshal(u.OneOfInlineOneOf1)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("OneOfInline: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsOneOfInlineOneOf0 returns the union data inside the OneOfInline as a OneOfInlineOneOf0.
+func (t OneOfInline) AsOneOfInlineOneOf0() (OneOfInlineOneOf0, error) {
+	var body OneOfInlineOneOf0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *OneOfInline) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromOneOfInlineOneOf0 overwrites any union data inside the OneOfInline as the provided OneOfInlineOneOf0.
+func (t *OneOfInline) FromOneOfInlineOneOf0(v OneOfInlineOneOf0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 OneOfInlineOneOf0
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.OneOfInlineOneOf0 = &v0
-		successCount++
+// MergeOneOfInlineOneOf0 performs a merge with any union data inside the OneOfInline, using the provided OneOfInlineOneOf0.
+func (t *OneOfInline) MergeOneOfInlineOneOf0(v OneOfInlineOneOf0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 OneOfInlineOneOf1
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.OneOfInlineOneOf1 = &v1
-		successCount++
+// AsOneOfInlineOneOf1 returns the union data inside the OneOfInline as a OneOfInlineOneOf1.
+func (t OneOfInline) AsOneOfInlineOneOf1() (OneOfInlineOneOf1, error) {
+	var body OneOfInlineOneOf1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOneOfInlineOneOf1 overwrites any union data inside the OneOfInline as the provided OneOfInlineOneOf1.
+func (t *OneOfInline) FromOneOfInlineOneOf1(v OneOfInlineOneOf1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOneOfInlineOneOf1 performs a merge with any union data inside the OneOfInline, using the provided OneOfInlineOneOf1.
+func (t *OneOfInline) MergeOneOfInlineOneOf1(v OneOfInlineOneOf1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("OneOfInline: expected exactly one type to match, got %d", successCount)
-	}
+func (t OneOfInline) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *OneOfInline) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *OneOfInline) ApplyDefaults() {
-	if u.OneOfInlineOneOf0 != nil {
-		u.OneOfInlineOneOf0.ApplyDefaults()
-	}
-	if u.OneOfInlineOneOf1 != nil {
-		u.OneOfInlineOneOf1.ApplyDefaults()
-	}
+func (t *OneOfInline) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfInline/oneOf/0
@@ -1031,75 +1223,96 @@ func (s *OneOfInlineOneOf1) ApplyDefaults() {
 
 // #/components/schemas/OneOfPrimitives
 type OneOfPrimitives struct {
-	String0  *string
-	Float321 *float32
-	Bool2    *bool
+	union json.RawMessage
 }
 
-func (u OneOfPrimitives) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.String0 != nil {
-		count++
-		data, err = json.Marshal(u.String0)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.Float321 != nil {
-		count++
-		data, err = json.Marshal(u.Float321)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.Bool2 != nil {
-		count++
-		data, err = json.Marshal(u.Bool2)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("OneOfPrimitives: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsString0 returns the union data inside the OneOfPrimitives as a string.
+func (t OneOfPrimitives) AsString0() (string, error) {
+	var body string
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *OneOfPrimitives) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromString0 overwrites any union data inside the OneOfPrimitives as the provided string.
+func (t *OneOfPrimitives) FromString0(v string) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 string
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.String0 = &v0
-		successCount++
+// MergeString0 performs a merge with any union data inside the OneOfPrimitives, using the provided string.
+func (t *OneOfPrimitives) MergeString0(v string) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 float32
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.Float321 = &v1
-		successCount++
+// AsFloat321 returns the union data inside the OneOfPrimitives as a float32.
+func (t OneOfPrimitives) AsFloat321() (float32, error) {
+	var body float32
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromFloat321 overwrites any union data inside the OneOfPrimitives as the provided float32.
+func (t *OneOfPrimitives) FromFloat321(v float32) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeFloat321 performs a merge with any union data inside the OneOfPrimitives, using the provided float32.
+func (t *OneOfPrimitives) MergeFloat321(v float32) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v2 bool
-	if err := json.Unmarshal(data, &v2); err == nil {
-		u.Bool2 = &v2
-		successCount++
+// AsBool2 returns the union data inside the OneOfPrimitives as a bool.
+func (t OneOfPrimitives) AsBool2() (bool, error) {
+	var body bool
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromBool2 overwrites any union data inside the OneOfPrimitives as the provided bool.
+func (t *OneOfPrimitives) FromBool2(v bool) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeBool2 performs a merge with any union data inside the OneOfPrimitives, using the provided bool.
+func (t *OneOfPrimitives) MergeBool2(v bool) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("OneOfPrimitives: expected exactly one type to match, got %d", successCount)
-	}
+func (t OneOfPrimitives) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *OneOfPrimitives) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *OneOfPrimitives) ApplyDefaults() {
+func (t *OneOfPrimitives) ApplyDefaults() {
 }
 
 // #/components/schemas/ObjectWithOneOfProperty
@@ -1114,67 +1327,96 @@ func (s *ObjectWithOneOfProperty) ApplyDefaults() {
 
 // #/components/schemas/ObjectWithOneOfProperty/properties/variant
 type ObjectWithOneOfPropertyVariant struct {
-	Cat *Cat
-	Dog *Dog
+	union json.RawMessage
 }
 
-func (u ObjectWithOneOfPropertyVariant) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.Cat != nil {
-		count++
-		data, err = json.Marshal(u.Cat)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.Dog != nil {
-		count++
-		data, err = json.Marshal(u.Dog)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("ObjectWithOneOfPropertyVariant: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsCat returns the union data inside the ObjectWithOneOfPropertyVariant as a Cat.
+func (t ObjectWithOneOfPropertyVariant) AsCat() (Cat, error) {
+	var body Cat
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *ObjectWithOneOfPropertyVariant) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromCat overwrites any union data inside the ObjectWithOneOfPropertyVariant as the provided Cat.
+func (t *ObjectWithOneOfPropertyVariant) FromCat(v Cat) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 Cat
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.Cat = &v0
-		successCount++
+// MergeCat performs a merge with any union data inside the ObjectWithOneOfPropertyVariant, using the provided Cat.
+func (t *ObjectWithOneOfPropertyVariant) MergeCat(v Cat) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 Dog
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.Dog = &v1
-		successCount++
+// AsDog returns the union data inside the ObjectWithOneOfPropertyVariant as a Dog.
+func (t ObjectWithOneOfPropertyVariant) AsDog() (Dog, error) {
+	var body Dog
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDog overwrites any union data inside the ObjectWithOneOfPropertyVariant as the provided Dog.
+func (t *ObjectWithOneOfPropertyVariant) FromDog(v Dog) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDog performs a merge with any union data inside the ObjectWithOneOfPropertyVariant, using the provided Dog.
+func (t *ObjectWithOneOfPropertyVariant) MergeDog(v Dog) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("ObjectWithOneOfPropertyVariant: expected exactly one type to match, got %d", successCount)
+// Discriminator extracts the discriminator property value from the union data.
+func (t ObjectWithOneOfPropertyVariant) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"petType"`
 	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
 
-	return nil
+// ValueByDiscriminator returns the union member based on the discriminator value.
+func (t ObjectWithOneOfPropertyVariant) ValueByDiscriminator() (any, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "Cat":
+		return t.AsCat()
+	case "Dog":
+		return t.AsDog()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t ObjectWithOneOfPropertyVariant) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ObjectWithOneOfPropertyVariant) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *ObjectWithOneOfPropertyVariant) ApplyDefaults() {
-	if u.Cat != nil {
-		u.Cat.ApplyDefaults()
-	}
-	if u.Dog != nil {
-		u.Dog.ApplyDefaults()
-	}
+func (t *ObjectWithOneOfPropertyVariant) ApplyDefaults() {
 }
 
 // #/components/schemas/AllOfWithOneOf
@@ -1246,132 +1488,165 @@ func (s *AllOfWithOneOf) ApplyDefaults() {
 
 // #/components/schemas/AllOfWithOneOf/allOf/1
 type AllOfWithOneOfAllOf1 struct {
-	Cat *Cat
-	Dog *Dog
+	union json.RawMessage
 }
 
-func (u AllOfWithOneOfAllOf1) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.Cat != nil {
-		count++
-		data, err = json.Marshal(u.Cat)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.Dog != nil {
-		count++
-		data, err = json.Marshal(u.Dog)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("AllOfWithOneOfAllOf1: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsCat returns the union data inside the AllOfWithOneOfAllOf1 as a Cat.
+func (t AllOfWithOneOfAllOf1) AsCat() (Cat, error) {
+	var body Cat
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *AllOfWithOneOfAllOf1) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromCat overwrites any union data inside the AllOfWithOneOfAllOf1 as the provided Cat.
+func (t *AllOfWithOneOfAllOf1) FromCat(v Cat) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 Cat
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.Cat = &v0
-		successCount++
+// MergeCat performs a merge with any union data inside the AllOfWithOneOfAllOf1, using the provided Cat.
+func (t *AllOfWithOneOfAllOf1) MergeCat(v Cat) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 Dog
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.Dog = &v1
-		successCount++
+// AsDog returns the union data inside the AllOfWithOneOfAllOf1 as a Dog.
+func (t AllOfWithOneOfAllOf1) AsDog() (Dog, error) {
+	var body Dog
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDog overwrites any union data inside the AllOfWithOneOfAllOf1 as the provided Dog.
+func (t *AllOfWithOneOfAllOf1) FromDog(v Dog) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDog performs a merge with any union data inside the AllOfWithOneOfAllOf1, using the provided Dog.
+func (t *AllOfWithOneOfAllOf1) MergeDog(v Dog) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("AllOfWithOneOfAllOf1: expected exactly one type to match, got %d", successCount)
+// Discriminator extracts the discriminator property value from the union data.
+func (t AllOfWithOneOfAllOf1) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"petType"`
 	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
 
-	return nil
+// ValueByDiscriminator returns the union member based on the discriminator value.
+func (t AllOfWithOneOfAllOf1) ValueByDiscriminator() (any, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "Cat":
+		return t.AsCat()
+	case "Dog":
+		return t.AsDog()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t AllOfWithOneOfAllOf1) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *AllOfWithOneOfAllOf1) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *AllOfWithOneOfAllOf1) ApplyDefaults() {
-	if u.Cat != nil {
-		u.Cat.ApplyDefaults()
-	}
-	if u.Dog != nil {
-		u.Dog.ApplyDefaults()
-	}
+func (t *AllOfWithOneOfAllOf1) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfWithAllOf
 type OneOfWithAllOf struct {
-	OneOfWithAllOfOneOf0 *OneOfWithAllOfOneOf0
-	OneOfWithAllOfOneOf1 *OneOfWithAllOfOneOf1
+	union json.RawMessage
 }
 
-func (u OneOfWithAllOf) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.OneOfWithAllOfOneOf0 != nil {
-		count++
-		data, err = json.Marshal(u.OneOfWithAllOfOneOf0)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.OneOfWithAllOfOneOf1 != nil {
-		count++
-		data, err = json.Marshal(u.OneOfWithAllOfOneOf1)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("OneOfWithAllOf: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsOneOfWithAllOfOneOf0 returns the union data inside the OneOfWithAllOf as a OneOfWithAllOfOneOf0.
+func (t OneOfWithAllOf) AsOneOfWithAllOfOneOf0() (OneOfWithAllOfOneOf0, error) {
+	var body OneOfWithAllOfOneOf0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *OneOfWithAllOf) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromOneOfWithAllOfOneOf0 overwrites any union data inside the OneOfWithAllOf as the provided OneOfWithAllOfOneOf0.
+func (t *OneOfWithAllOf) FromOneOfWithAllOfOneOf0(v OneOfWithAllOfOneOf0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 OneOfWithAllOfOneOf0
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.OneOfWithAllOfOneOf0 = &v0
-		successCount++
+// MergeOneOfWithAllOfOneOf0 performs a merge with any union data inside the OneOfWithAllOf, using the provided OneOfWithAllOfOneOf0.
+func (t *OneOfWithAllOf) MergeOneOfWithAllOfOneOf0(v OneOfWithAllOfOneOf0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 OneOfWithAllOfOneOf1
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.OneOfWithAllOfOneOf1 = &v1
-		successCount++
+// AsOneOfWithAllOfOneOf1 returns the union data inside the OneOfWithAllOf as a OneOfWithAllOfOneOf1.
+func (t OneOfWithAllOf) AsOneOfWithAllOfOneOf1() (OneOfWithAllOfOneOf1, error) {
+	var body OneOfWithAllOfOneOf1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOneOfWithAllOfOneOf1 overwrites any union data inside the OneOfWithAllOf as the provided OneOfWithAllOfOneOf1.
+func (t *OneOfWithAllOf) FromOneOfWithAllOfOneOf1(v OneOfWithAllOfOneOf1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOneOfWithAllOfOneOf1 performs a merge with any union data inside the OneOfWithAllOf, using the provided OneOfWithAllOfOneOf1.
+func (t *OneOfWithAllOf) MergeOneOfWithAllOfOneOf1(v OneOfWithAllOfOneOf1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("OneOfWithAllOf: expected exactly one type to match, got %d", successCount)
-	}
+func (t OneOfWithAllOf) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *OneOfWithAllOf) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *OneOfWithAllOf) ApplyDefaults() {
-	if u.OneOfWithAllOfOneOf0 != nil {
-		u.OneOfWithAllOfOneOf0.ApplyDefaults()
-	}
-	if u.OneOfWithAllOfOneOf1 != nil {
-		u.OneOfWithAllOfOneOf1.ApplyDefaults()
-	}
+func (t *OneOfWithAllOf) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOfWithAllOf/oneOf/0
@@ -1424,64 +1699,71 @@ func (s *LinkedListNode) ApplyDefaults() {
 
 // #/components/schemas/RecursiveOneOf
 type RecursiveOneOf struct {
-	String0              *string
-	RecursiveOneOfOneOf1 *RecursiveOneOfOneOf1
+	union json.RawMessage
 }
 
-func (u RecursiveOneOf) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.String0 != nil {
-		count++
-		data, err = json.Marshal(u.String0)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.RecursiveOneOfOneOf1 != nil {
-		count++
-		data, err = json.Marshal(u.RecursiveOneOfOneOf1)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("RecursiveOneOf: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsString0 returns the union data inside the RecursiveOneOf as a string.
+func (t RecursiveOneOf) AsString0() (string, error) {
+	var body string
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *RecursiveOneOf) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromString0 overwrites any union data inside the RecursiveOneOf as the provided string.
+func (t *RecursiveOneOf) FromString0(v string) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 string
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.String0 = &v0
-		successCount++
+// MergeString0 performs a merge with any union data inside the RecursiveOneOf, using the provided string.
+func (t *RecursiveOneOf) MergeString0(v string) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 RecursiveOneOfOneOf1
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.RecursiveOneOfOneOf1 = &v1
-		successCount++
+// AsRecursiveOneOfOneOf1 returns the union data inside the RecursiveOneOf as a RecursiveOneOfOneOf1.
+func (t RecursiveOneOf) AsRecursiveOneOfOneOf1() (RecursiveOneOfOneOf1, error) {
+	var body RecursiveOneOfOneOf1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRecursiveOneOfOneOf1 overwrites any union data inside the RecursiveOneOf as the provided RecursiveOneOfOneOf1.
+func (t *RecursiveOneOf) FromRecursiveOneOfOneOf1(v RecursiveOneOfOneOf1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRecursiveOneOfOneOf1 performs a merge with any union data inside the RecursiveOneOf, using the provided RecursiveOneOfOneOf1.
+func (t *RecursiveOneOf) MergeRecursiveOneOfOneOf1(v RecursiveOneOfOneOf1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("RecursiveOneOf: expected exactly one type to match, got %d", successCount)
-	}
+func (t RecursiveOneOf) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *RecursiveOneOf) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *RecursiveOneOf) ApplyDefaults() {
-	if u.RecursiveOneOfOneOf1 != nil {
-		u.RecursiveOneOfOneOf1.ApplyDefaults()
-	}
+func (t *RecursiveOneOf) ApplyDefaults() {
 }
 
 // #/components/schemas/RecursiveOneOf/oneOf/1
@@ -1594,45 +1876,96 @@ type ComplexNestedMetadata = map[string]any
 
 // #/components/schemas/ComplexNested/properties/metadata/additionalProperties
 type ComplexNestedMetadataValue struct {
-	String0         *string
-	Int1            *int
-	LBracketString2 *[]string
+	union json.RawMessage
 }
 
-func (u ComplexNestedMetadataValue) MarshalJSON() ([]byte, error) {
-	if u.String0 != nil {
-		return json.Marshal(u.String0)
-	}
-	if u.Int1 != nil {
-		return json.Marshal(u.Int1)
-	}
-	if u.LBracketString2 != nil {
-		return json.Marshal(u.LBracketString2)
-	}
-	return []byte("null"), nil
+// AsString0 returns the union data inside the ComplexNestedMetadataValue as a string.
+func (t ComplexNestedMetadataValue) AsString0() (string, error) {
+	var body string
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *ComplexNestedMetadataValue) UnmarshalJSON(data []byte) error {
-	var v0 string
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.String0 = &v0
-	}
+// FromString0 overwrites any union data inside the ComplexNestedMetadataValue as the provided string.
+func (t *ComplexNestedMetadataValue) FromString0(v string) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v1 int
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.Int1 = &v1
+// MergeString0 performs a merge with any union data inside the ComplexNestedMetadataValue, using the provided string.
+func (t *ComplexNestedMetadataValue) MergeString0(v string) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v2 []string
-	if err := json.Unmarshal(data, &v2); err == nil {
-		u.LBracketString2 = &v2
+// AsInt1 returns the union data inside the ComplexNestedMetadataValue as a int.
+func (t ComplexNestedMetadataValue) AsInt1() (int, error) {
+	var body int
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInt1 overwrites any union data inside the ComplexNestedMetadataValue as the provided int.
+func (t *ComplexNestedMetadataValue) FromInt1(v int) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInt1 performs a merge with any union data inside the ComplexNestedMetadataValue, using the provided int.
+func (t *ComplexNestedMetadataValue) MergeInt1(v int) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	return nil
+// AsLBracketString2 returns the union data inside the ComplexNestedMetadataValue as a []string.
+func (t ComplexNestedMetadataValue) AsLBracketString2() ([]string, error) {
+	var body []string
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromLBracketString2 overwrites any union data inside the ComplexNestedMetadataValue as the provided []string.
+func (t *ComplexNestedMetadataValue) FromLBracketString2(v []string) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeLBracketString2 performs a merge with any union data inside the ComplexNestedMetadataValue, using the provided []string.
+func (t *ComplexNestedMetadataValue) MergeLBracketString2(v []string) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ComplexNestedMetadataValue) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ComplexNestedMetadataValue) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *ComplexNestedMetadataValue) ApplyDefaults() {
+func (t *ComplexNestedMetadataValue) ApplyDefaults() {
 }
 
 // #/components/schemas/ComplexNested/properties/items
@@ -1651,67 +1984,71 @@ func (s *ComplexNestedItemItem) ApplyDefaults() {
 
 // #/components/schemas/ComplexNested/properties/config
 type ComplexNestedConfig struct {
-	ComplexNestedConfigOneOf0 *ComplexNestedConfigOneOf0
-	ComplexNestedConfigOneOf1 *ComplexNestedConfigOneOf1
+	union json.RawMessage
 }
 
-func (u ComplexNestedConfig) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.ComplexNestedConfigOneOf0 != nil {
-		count++
-		data, err = json.Marshal(u.ComplexNestedConfigOneOf0)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.ComplexNestedConfigOneOf1 != nil {
-		count++
-		data, err = json.Marshal(u.ComplexNestedConfigOneOf1)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("ComplexNestedConfig: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsComplexNestedConfigOneOf0 returns the union data inside the ComplexNestedConfig as a ComplexNestedConfigOneOf0.
+func (t ComplexNestedConfig) AsComplexNestedConfigOneOf0() (ComplexNestedConfigOneOf0, error) {
+	var body ComplexNestedConfigOneOf0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *ComplexNestedConfig) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromComplexNestedConfigOneOf0 overwrites any union data inside the ComplexNestedConfig as the provided ComplexNestedConfigOneOf0.
+func (t *ComplexNestedConfig) FromComplexNestedConfigOneOf0(v ComplexNestedConfigOneOf0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 ComplexNestedConfigOneOf0
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.ComplexNestedConfigOneOf0 = &v0
-		successCount++
+// MergeComplexNestedConfigOneOf0 performs a merge with any union data inside the ComplexNestedConfig, using the provided ComplexNestedConfigOneOf0.
+func (t *ComplexNestedConfig) MergeComplexNestedConfigOneOf0(v ComplexNestedConfigOneOf0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 ComplexNestedConfigOneOf1
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.ComplexNestedConfigOneOf1 = &v1
-		successCount++
+// AsComplexNestedConfigOneOf1 returns the union data inside the ComplexNestedConfig as a ComplexNestedConfigOneOf1.
+func (t ComplexNestedConfig) AsComplexNestedConfigOneOf1() (ComplexNestedConfigOneOf1, error) {
+	var body ComplexNestedConfigOneOf1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromComplexNestedConfigOneOf1 overwrites any union data inside the ComplexNestedConfig as the provided ComplexNestedConfigOneOf1.
+func (t *ComplexNestedConfig) FromComplexNestedConfigOneOf1(v ComplexNestedConfigOneOf1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeComplexNestedConfigOneOf1 performs a merge with any union data inside the ComplexNestedConfig, using the provided ComplexNestedConfigOneOf1.
+func (t *ComplexNestedConfig) MergeComplexNestedConfigOneOf1(v ComplexNestedConfigOneOf1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("ComplexNestedConfig: expected exactly one type to match, got %d", successCount)
-	}
+func (t ComplexNestedConfig) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *ComplexNestedConfig) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *ComplexNestedConfig) ApplyDefaults() {
-	if u.ComplexNestedConfigOneOf0 != nil {
-		u.ComplexNestedConfigOneOf0.ApplyDefaults()
-	}
-	if u.ComplexNestedConfigOneOf1 != nil {
-		u.ComplexNestedConfigOneOf1.ApplyDefaults()
-	}
+func (t *ComplexNestedConfig) ApplyDefaults() {
 }
 
 // #/components/schemas/ComplexNested/properties/config/oneOf/0
@@ -2106,3 +2443,30 @@ var ErrNullableIsNull = errors.New("nullable value is null")
 var ErrNullableNotSpecified = errors.New("nullable value is not specified")
 
 type UUID = uuid.UUID
+
+// JSONMerge merges two JSON-encoded objects. Fields from patch override
+// fields in base. Both arguments must be valid JSON objects (or nil/null).
+func JSONMerge(base, patch json.RawMessage) (json.RawMessage, error) {
+	if len(base) == 0 || string(base) == "null" {
+		return patch, nil
+	}
+	if len(patch) == 0 || string(patch) == "null" {
+		return base, nil
+	}
+
+	var baseMap map[string]json.RawMessage
+	if err := json.Unmarshal(base, &baseMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling base: %w", err)
+	}
+
+	var patchMap map[string]json.RawMessage
+	if err := json.Unmarshal(patch, &patchMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling patch: %w", err)
+	}
+
+	for k, v := range patchMap {
+		baseMap[k] = v
+	}
+
+	return json.Marshal(baseMap)
+}

@@ -252,78 +252,96 @@ type GetEntities200Response = []Widget
 
 // #/paths//resources/{id}/patch/responses/200/content/application/json-patch+json/schema
 type PatchResourceJSONResponse2001 struct {
-	Resource                               *Resource
-	PatchResourcesID200ResponseJSONOneOf11 *PatchResourcesID200ResponseJSONOneOf11
-	PatchResourcesID200ResponseJSONOneOf21 *PatchResourcesID200ResponseJSONOneOf21
+	union json.RawMessage
 }
 
-func (u PatchResourceJSONResponse2001) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.Resource != nil {
-		count++
-		data, err = json.Marshal(u.Resource)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.PatchResourcesID200ResponseJSONOneOf11 != nil {
-		count++
-		data, err = json.Marshal(u.PatchResourcesID200ResponseJSONOneOf11)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.PatchResourcesID200ResponseJSONOneOf21 != nil {
-		count++
-		data, err = json.Marshal(u.PatchResourcesID200ResponseJSONOneOf21)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("PatchResourceJSONResponse2001: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsResource returns the union data inside the PatchResourceJSONResponse2001 as a Resource.
+func (t PatchResourceJSONResponse2001) AsResource() (Resource, error) {
+	var body Resource
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *PatchResourceJSONResponse2001) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromResource overwrites any union data inside the PatchResourceJSONResponse2001 as the provided Resource.
+func (t *PatchResourceJSONResponse2001) FromResource(v Resource) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 Resource
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.Resource = &v0
-		successCount++
+// MergeResource performs a merge with any union data inside the PatchResourceJSONResponse2001, using the provided Resource.
+func (t *PatchResourceJSONResponse2001) MergeResource(v Resource) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 PatchResourcesID200ResponseJSONOneOf11
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.PatchResourcesID200ResponseJSONOneOf11 = &v1
-		successCount++
+// AsPatchResourcesID200ResponseJSONOneOf11 returns the union data inside the PatchResourceJSONResponse2001 as a PatchResourcesID200ResponseJSONOneOf11.
+func (t PatchResourceJSONResponse2001) AsPatchResourcesID200ResponseJSONOneOf11() (PatchResourcesID200ResponseJSONOneOf11, error) {
+	var body PatchResourcesID200ResponseJSONOneOf11
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPatchResourcesID200ResponseJSONOneOf11 overwrites any union data inside the PatchResourceJSONResponse2001 as the provided PatchResourcesID200ResponseJSONOneOf11.
+func (t *PatchResourceJSONResponse2001) FromPatchResourcesID200ResponseJSONOneOf11(v PatchResourcesID200ResponseJSONOneOf11) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePatchResourcesID200ResponseJSONOneOf11 performs a merge with any union data inside the PatchResourceJSONResponse2001, using the provided PatchResourcesID200ResponseJSONOneOf11.
+func (t *PatchResourceJSONResponse2001) MergePatchResourcesID200ResponseJSONOneOf11(v PatchResourcesID200ResponseJSONOneOf11) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v2 PatchResourcesID200ResponseJSONOneOf21
-	if err := json.Unmarshal(data, &v2); err == nil {
-		u.PatchResourcesID200ResponseJSONOneOf21 = &v2
-		successCount++
+// AsPatchResourcesID200ResponseJSONOneOf21 returns the union data inside the PatchResourceJSONResponse2001 as a PatchResourcesID200ResponseJSONOneOf21.
+func (t PatchResourceJSONResponse2001) AsPatchResourcesID200ResponseJSONOneOf21() (PatchResourcesID200ResponseJSONOneOf21, error) {
+	var body PatchResourcesID200ResponseJSONOneOf21
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPatchResourcesID200ResponseJSONOneOf21 overwrites any union data inside the PatchResourceJSONResponse2001 as the provided PatchResourcesID200ResponseJSONOneOf21.
+func (t *PatchResourceJSONResponse2001) FromPatchResourcesID200ResponseJSONOneOf21(v PatchResourcesID200ResponseJSONOneOf21) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePatchResourcesID200ResponseJSONOneOf21 performs a merge with any union data inside the PatchResourceJSONResponse2001, using the provided PatchResourcesID200ResponseJSONOneOf21.
+func (t *PatchResourceJSONResponse2001) MergePatchResourcesID200ResponseJSONOneOf21(v PatchResourcesID200ResponseJSONOneOf21) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("PatchResourceJSONResponse2001: expected exactly one type to match, got %d", successCount)
-	}
+func (t PatchResourceJSONResponse2001) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *PatchResourceJSONResponse2001) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *PatchResourceJSONResponse2001) ApplyDefaults() {
-	if u.Resource != nil {
-		u.Resource.ApplyDefaults()
-	}
+func (t *PatchResourceJSONResponse2001) ApplyDefaults() {
 }
 
 // #/paths//resources/{id}/patch/responses/200/content/application/json-patch+json/schema/oneOf/1
@@ -334,78 +352,96 @@ type PatchResourcesID200ResponseJSONOneOf21 = Nullable[string]
 
 // #/paths//resources/{id}/patch/responses/200/content/application/json-patch-query+json/schema
 type PatchResourceJSONResponse2002 struct {
-	Resource                               *Resource
-	PatchResourcesID200ResponseJSONOneOf12 *PatchResourcesID200ResponseJSONOneOf12
-	PatchResourcesID200ResponseJSONOneOf22 *PatchResourcesID200ResponseJSONOneOf22
+	union json.RawMessage
 }
 
-func (u PatchResourceJSONResponse2002) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.Resource != nil {
-		count++
-		data, err = json.Marshal(u.Resource)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.PatchResourcesID200ResponseJSONOneOf12 != nil {
-		count++
-		data, err = json.Marshal(u.PatchResourcesID200ResponseJSONOneOf12)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.PatchResourcesID200ResponseJSONOneOf22 != nil {
-		count++
-		data, err = json.Marshal(u.PatchResourcesID200ResponseJSONOneOf22)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("PatchResourceJSONResponse2002: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsResource returns the union data inside the PatchResourceJSONResponse2002 as a Resource.
+func (t PatchResourceJSONResponse2002) AsResource() (Resource, error) {
+	var body Resource
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *PatchResourceJSONResponse2002) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromResource overwrites any union data inside the PatchResourceJSONResponse2002 as the provided Resource.
+func (t *PatchResourceJSONResponse2002) FromResource(v Resource) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 Resource
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.Resource = &v0
-		successCount++
+// MergeResource performs a merge with any union data inside the PatchResourceJSONResponse2002, using the provided Resource.
+func (t *PatchResourceJSONResponse2002) MergeResource(v Resource) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 PatchResourcesID200ResponseJSONOneOf12
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.PatchResourcesID200ResponseJSONOneOf12 = &v1
-		successCount++
+// AsPatchResourcesID200ResponseJSONOneOf12 returns the union data inside the PatchResourceJSONResponse2002 as a PatchResourcesID200ResponseJSONOneOf12.
+func (t PatchResourceJSONResponse2002) AsPatchResourcesID200ResponseJSONOneOf12() (PatchResourcesID200ResponseJSONOneOf12, error) {
+	var body PatchResourcesID200ResponseJSONOneOf12
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPatchResourcesID200ResponseJSONOneOf12 overwrites any union data inside the PatchResourceJSONResponse2002 as the provided PatchResourcesID200ResponseJSONOneOf12.
+func (t *PatchResourceJSONResponse2002) FromPatchResourcesID200ResponseJSONOneOf12(v PatchResourcesID200ResponseJSONOneOf12) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePatchResourcesID200ResponseJSONOneOf12 performs a merge with any union data inside the PatchResourceJSONResponse2002, using the provided PatchResourcesID200ResponseJSONOneOf12.
+func (t *PatchResourceJSONResponse2002) MergePatchResourcesID200ResponseJSONOneOf12(v PatchResourcesID200ResponseJSONOneOf12) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v2 PatchResourcesID200ResponseJSONOneOf22
-	if err := json.Unmarshal(data, &v2); err == nil {
-		u.PatchResourcesID200ResponseJSONOneOf22 = &v2
-		successCount++
+// AsPatchResourcesID200ResponseJSONOneOf22 returns the union data inside the PatchResourceJSONResponse2002 as a PatchResourcesID200ResponseJSONOneOf22.
+func (t PatchResourceJSONResponse2002) AsPatchResourcesID200ResponseJSONOneOf22() (PatchResourcesID200ResponseJSONOneOf22, error) {
+	var body PatchResourcesID200ResponseJSONOneOf22
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPatchResourcesID200ResponseJSONOneOf22 overwrites any union data inside the PatchResourceJSONResponse2002 as the provided PatchResourcesID200ResponseJSONOneOf22.
+func (t *PatchResourceJSONResponse2002) FromPatchResourcesID200ResponseJSONOneOf22(v PatchResourcesID200ResponseJSONOneOf22) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePatchResourcesID200ResponseJSONOneOf22 performs a merge with any union data inside the PatchResourceJSONResponse2002, using the provided PatchResourcesID200ResponseJSONOneOf22.
+func (t *PatchResourceJSONResponse2002) MergePatchResourcesID200ResponseJSONOneOf22(v PatchResourcesID200ResponseJSONOneOf22) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("PatchResourceJSONResponse2002: expected exactly one type to match, got %d", successCount)
-	}
+func (t PatchResourceJSONResponse2002) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *PatchResourceJSONResponse2002) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *PatchResourceJSONResponse2002) ApplyDefaults() {
-	if u.Resource != nil {
-		u.Resource.ApplyDefaults()
-	}
+func (t *PatchResourceJSONResponse2002) ApplyDefaults() {
 }
 
 // #/paths//resources/{id}/patch/responses/200/content/application/json-patch-query+json/schema/oneOf/1
@@ -2708,4 +2744,31 @@ func structToFieldDict(value any) (map[string]string, error) {
 		fieldDict[fieldName] = str
 	}
 	return fieldDict, nil
+}
+
+// JSONMerge merges two JSON-encoded objects. Fields from patch override
+// fields in base. Both arguments must be valid JSON objects (or nil/null).
+func JSONMerge(base, patch json.RawMessage) (json.RawMessage, error) {
+	if len(base) == 0 || string(base) == "null" {
+		return patch, nil
+	}
+	if len(patch) == 0 || string(patch) == "null" {
+		return base, nil
+	}
+
+	var baseMap map[string]json.RawMessage
+	if err := json.Unmarshal(base, &baseMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling base: %w", err)
+	}
+
+	var patchMap map[string]json.RawMessage
+	if err := json.Unmarshal(patch, &patchMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling patch: %w", err)
+	}
+
+	for k, v := range patchMap {
+		baseMap[k] = v
+	}
+
+	return json.Marshal(baseMap)
 }

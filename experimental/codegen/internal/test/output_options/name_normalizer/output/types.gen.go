@@ -41,67 +41,71 @@ func (s *Error) ApplyDefaults() {
 // #/components/schemas/OneOf2things
 // Notice that the `things` is not capitalised
 type OneOf2Things struct {
-	OneOf2ThingsOneOf0 *OneOf2ThingsOneOf0
-	OneOf2ThingsOneOf1 *OneOf2ThingsOneOf1
+	union json.RawMessage
 }
 
-func (u OneOf2Things) MarshalJSON() ([]byte, error) {
-	var count int
-	var data []byte
-	var err error
-
-	if u.OneOf2ThingsOneOf0 != nil {
-		count++
-		data, err = json.Marshal(u.OneOf2ThingsOneOf0)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if u.OneOf2ThingsOneOf1 != nil {
-		count++
-		data, err = json.Marshal(u.OneOf2ThingsOneOf1)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if count != 1 {
-		return nil, fmt.Errorf("OneOf2Things: exactly one member must be set, got %d", count)
-	}
-
-	return data, nil
+// AsOneOf2ThingsOneOf0 returns the union data inside the OneOf2Things as a OneOf2ThingsOneOf0.
+func (t OneOf2Things) AsOneOf2ThingsOneOf0() (OneOf2ThingsOneOf0, error) {
+	var body OneOf2ThingsOneOf0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *OneOf2Things) UnmarshalJSON(data []byte) error {
-	var successCount int
+// FromOneOf2ThingsOneOf0 overwrites any union data inside the OneOf2Things as the provided OneOf2ThingsOneOf0.
+func (t *OneOf2Things) FromOneOf2ThingsOneOf0(v OneOf2ThingsOneOf0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v0 OneOf2ThingsOneOf0
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.OneOf2ThingsOneOf0 = &v0
-		successCount++
+// MergeOneOf2ThingsOneOf0 performs a merge with any union data inside the OneOf2Things, using the provided OneOf2ThingsOneOf0.
+func (t *OneOf2Things) MergeOneOf2ThingsOneOf0(v OneOf2ThingsOneOf0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	var v1 OneOf2ThingsOneOf1
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.OneOf2ThingsOneOf1 = &v1
-		successCount++
+// AsOneOf2ThingsOneOf1 returns the union data inside the OneOf2Things as a OneOf2ThingsOneOf1.
+func (t OneOf2Things) AsOneOf2ThingsOneOf1() (OneOf2ThingsOneOf1, error) {
+	var body OneOf2ThingsOneOf1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOneOf2ThingsOneOf1 overwrites any union data inside the OneOf2Things as the provided OneOf2ThingsOneOf1.
+func (t *OneOf2Things) FromOneOf2ThingsOneOf1(v OneOf2ThingsOneOf1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOneOf2ThingsOneOf1 performs a merge with any union data inside the OneOf2Things, using the provided OneOf2ThingsOneOf1.
+func (t *OneOf2Things) MergeOneOf2ThingsOneOf1(v OneOf2ThingsOneOf1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	if successCount != 1 {
-		return fmt.Errorf("OneOf2Things: expected exactly one type to match, got %d", successCount)
-	}
+func (t OneOf2Things) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-	return nil
+func (t *OneOf2Things) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *OneOf2Things) ApplyDefaults() {
-	if u.OneOf2ThingsOneOf0 != nil {
-		u.OneOf2ThingsOneOf0.ApplyDefaults()
-	}
-	if u.OneOf2ThingsOneOf1 != nil {
-		u.OneOf2ThingsOneOf1.ApplyDefaults()
-	}
+func (t *OneOf2Things) ApplyDefaults() {
 }
 
 // #/components/schemas/OneOf2things/oneOf/0
@@ -175,3 +179,30 @@ func GetOpenAPISpecJSON() ([]byte, error) {
 }
 
 type UUID = uuid.UUID
+
+// JSONMerge merges two JSON-encoded objects. Fields from patch override
+// fields in base. Both arguments must be valid JSON objects (or nil/null).
+func JSONMerge(base, patch json.RawMessage) (json.RawMessage, error) {
+	if len(base) == 0 || string(base) == "null" {
+		return patch, nil
+	}
+	if len(patch) == 0 || string(patch) == "null" {
+		return base, nil
+	}
+
+	var baseMap map[string]json.RawMessage
+	if err := json.Unmarshal(base, &baseMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling base: %w", err)
+	}
+
+	var patchMap map[string]json.RawMessage
+	if err := json.Unmarshal(patch, &patchMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling patch: %w", err)
+	}
+
+	for k, v := range patchMap {
+		baseMap[k] = v
+	}
+
+	return json.Marshal(baseMap)
+}

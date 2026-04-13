@@ -78,6 +78,18 @@ func (g *TypeGenerator) Imports() map[string]string {
 	return g.ctx.Imports()
 }
 
+// NeedHelper records that a helper function template is needed (e.g., "json_merge").
+func (g *TypeGenerator) NeedHelper(name string) {
+	g.ctx.NeedHelper(name)
+}
+
+// helperPrefix returns the import prefix for helper functions.
+// When a runtime package is configured, this is "oapiCodegenHelpersPkg.".
+// When helpers are embedded, this is "" (functions are in the same package).
+func (g *TypeGenerator) helperPrefix() string {
+	return g.ctx.RuntimeHelpersPrefix()
+}
+
 // addTemplate records that a custom type template is needed.
 func (g *TypeGenerator) addTemplate(templateName string) {
 	g.ctx.NeedCustomType(templateName)

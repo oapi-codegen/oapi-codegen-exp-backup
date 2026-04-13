@@ -8,31 +8,31 @@ import (
 // TestValidIdentifiers verifies that all generated type names are valid Go identifiers.
 // Issue 1496: Inline schemas in responses were generating identifiers starting with numbers.
 func TestValidIdentifiers(t *testing.T) {
-	// If this compiles, the identifiers are valid
-	response := GetSomethingJSONResponse{
-		Results: []GetSomething200ResponseJSON2{
-			{
-				GetSomething200ResponseJSONAnyOf0: &GetSomething200ResponseJSONAnyOf0{
-					Order: ptr("order-123"),
-				},
-			},
-			{
-				GetSomething200ResponseJSONAnyOf11: &GetSomething200ResponseJSONAnyOf11{
-					Error: &GetSomething200ResponseJSONAnyOf12{
-						Code:    ptr(float32(400)),
-						Message: ptr("Bad request"),
-					},
-				},
-			},
-		},
+	// Verify union types exist and can be used via As/From
+	var union GetSomething200ResponseJSON2
+	err := union.FromGetSomething200ResponseJSONAnyOf0(GetSomething200ResponseJSONAnyOf0{
+		Order: ptr("order-123"),
+	})
+	if err != nil {
+		t.Fatalf("FromGetSomething200ResponseJSONAnyOf0 failed: %v", err)
 	}
 
-	// Should be able to marshal
-	data, err := json.Marshal(response)
+	// Should be able to marshal the union
+	data, err := json.Marshal(union)
+	if err != nil {
+		t.Fatalf("Failed to marshal union: %v", err)
+	}
+	t.Logf("Marshaled union: %s", string(data))
+
+	// Verify the overall response type compiles and works
+	response := GetSomethingJSONResponse{
+		Results: []GetSomething200ResponseJSON2{union},
+	}
+
+	data, err = json.Marshal(response)
 	if err != nil {
 		t.Fatalf("Failed to marshal response: %v", err)
 	}
-
 	t.Logf("Marshaled response: %s", string(data))
 }
 

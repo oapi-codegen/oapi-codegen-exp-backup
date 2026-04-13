@@ -80,6 +80,17 @@ var MarshalFormHelperTemplate = HelperTemplate{
 	Template: "helpers/marshal_form.go.tmpl",
 }
 
+// JSONMergeHelperTemplate is the template for the JSONMerge helper function.
+// This is included when any union type has Merge methods.
+var JSONMergeHelperTemplate = HelperTemplate{
+	Name: "json_merge",
+	Imports: []Import{
+		{Path: "encoding/json"},
+		{Path: "fmt"},
+	},
+	Template: "helpers/json_merge.go.tmpl",
+}
+
 // ParamTemplate defines a template for a parameter styling/binding function.
 type ParamTemplate struct {
 	Name     string   // Function name (e.g., "StyleSimpleParam")

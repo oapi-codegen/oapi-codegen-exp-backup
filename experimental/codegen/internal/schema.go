@@ -73,6 +73,10 @@ type SchemaDescriptor struct {
 	// These control code generation behavior (type overrides, field names, etc.)
 	Extensions *Extensions
 
+	// Discriminator holds discriminator info if this schema has oneOf/anyOf
+	// with a discriminator. nil when no discriminator is present.
+	Discriminator *DiscriminatorInfo
+
 	// Recursive structure:
 	Properties      map[string]*SchemaDescriptor
 	Items           *SchemaDescriptor
@@ -80,6 +84,20 @@ type SchemaDescriptor struct {
 	AnyOf           []*SchemaDescriptor
 	OneOf           []*SchemaDescriptor
 	AdditionalProps *SchemaDescriptor
+}
+
+// DiscriminatorInfo holds discriminator metadata extracted from the OpenAPI spec.
+type DiscriminatorInfo struct {
+	// PropertyName is the JSON property used as the discriminator (e.g., "petType").
+	PropertyName string
+
+	// Mapping maps discriminator values to $ref paths.
+	// For explicit mappings, keys are the values from the spec's discriminator.mapping.
+	// For implicit mappings, keys are inferred from $ref schema names.
+	Mapping map[string]string
+
+	// IsExplicit is true when the spec includes a discriminator.mapping section.
+	IsExplicit bool
 }
 
 // IsReference returns true if this schema is a $ref to another schema

@@ -88,16 +88,29 @@ func TestEnum1Constants(t *testing.T) {
 }
 
 func TestOneOfObject1(t *testing.T) {
-	// OneOfObject1 is a union type with variant fields
+	// OneOfObject1 is a union type — use From/As accessors
 	v := OneOfVariant1{Name: "test"}
-	o := OneOfObject1{OneOfVariant1: &v}
+	var o OneOfObject1
+	if err := o.FromOneOfVariant1(v); err != nil {
+		t.Fatalf("From failed: %v", err)
+	}
+
 	data, err := o.MarshalJSON()
 	if err != nil {
 		t.Fatalf("marshal failed: %v", err)
 	}
+
 	var decoded OneOfObject1
 	if err := decoded.UnmarshalJSON(data); err != nil {
 		t.Fatalf("unmarshal failed: %v", err)
+	}
+
+	got, err := decoded.AsOneOfVariant1()
+	if err != nil {
+		t.Fatalf("As failed: %v", err)
+	}
+	if got.Name != "test" {
+		t.Errorf("Name = %q, want %q", got.Name, "test")
 	}
 }
 

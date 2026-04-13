@@ -26,63 +26,71 @@ type GetSomething200ResponseJSON1 = []GetSomething200ResponseJSON2
 
 // #/paths//something/get/responses/200/content/application/json/schema/properties/results/items
 type GetSomething200ResponseJSON2 struct {
-	GetSomething200ResponseJSONAnyOf0  *GetSomething200ResponseJSONAnyOf0
-	GetSomething200ResponseJSONAnyOf11 *GetSomething200ResponseJSONAnyOf11
+	union json.RawMessage
 }
 
-func (u GetSomething200ResponseJSON2) MarshalJSON() ([]byte, error) {
-	result := make(map[string]any)
-
-	if u.GetSomething200ResponseJSONAnyOf0 != nil {
-		data, err := json.Marshal(u.GetSomething200ResponseJSONAnyOf0)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-	if u.GetSomething200ResponseJSONAnyOf11 != nil {
-		data, err := json.Marshal(u.GetSomething200ResponseJSONAnyOf11)
-		if err != nil {
-			return nil, err
-		}
-		var m map[string]any
-		if err := json.Unmarshal(data, &m); err == nil {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-
-	return json.Marshal(result)
+// AsGetSomething200ResponseJSONAnyOf0 returns the union data inside the GetSomething200ResponseJSON2 as a GetSomething200ResponseJSONAnyOf0.
+func (t GetSomething200ResponseJSON2) AsGetSomething200ResponseJSONAnyOf0() (GetSomething200ResponseJSONAnyOf0, error) {
+	var body GetSomething200ResponseJSONAnyOf0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-func (u *GetSomething200ResponseJSON2) UnmarshalJSON(data []byte) error {
-	var v0 GetSomething200ResponseJSONAnyOf0
-	if err := json.Unmarshal(data, &v0); err == nil {
-		u.GetSomething200ResponseJSONAnyOf0 = &v0
-	}
+// FromGetSomething200ResponseJSONAnyOf0 overwrites any union data inside the GetSomething200ResponseJSON2 as the provided GetSomething200ResponseJSONAnyOf0.
+func (t *GetSomething200ResponseJSON2) FromGetSomething200ResponseJSONAnyOf0(v GetSomething200ResponseJSONAnyOf0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-	var v1 GetSomething200ResponseJSONAnyOf11
-	if err := json.Unmarshal(data, &v1); err == nil {
-		u.GetSomething200ResponseJSONAnyOf11 = &v1
+// MergeGetSomething200ResponseJSONAnyOf0 performs a merge with any union data inside the GetSomething200ResponseJSON2, using the provided GetSomething200ResponseJSONAnyOf0.
+func (t *GetSomething200ResponseJSON2) MergeGetSomething200ResponseJSONAnyOf0(v GetSomething200ResponseJSONAnyOf0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-	return nil
+// AsGetSomething200ResponseJSONAnyOf11 returns the union data inside the GetSomething200ResponseJSON2 as a GetSomething200ResponseJSONAnyOf11.
+func (t GetSomething200ResponseJSON2) AsGetSomething200ResponseJSONAnyOf11() (GetSomething200ResponseJSONAnyOf11, error) {
+	var body GetSomething200ResponseJSONAnyOf11
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromGetSomething200ResponseJSONAnyOf11 overwrites any union data inside the GetSomething200ResponseJSON2 as the provided GetSomething200ResponseJSONAnyOf11.
+func (t *GetSomething200ResponseJSON2) FromGetSomething200ResponseJSONAnyOf11(v GetSomething200ResponseJSONAnyOf11) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeGetSomething200ResponseJSONAnyOf11 performs a merge with any union data inside the GetSomething200ResponseJSON2, using the provided GetSomething200ResponseJSONAnyOf11.
+func (t *GetSomething200ResponseJSON2) MergeGetSomething200ResponseJSONAnyOf11(v GetSomething200ResponseJSONAnyOf11) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	merged, err := JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t GetSomething200ResponseJSON2) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *GetSomething200ResponseJSON2) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // ApplyDefaults sets default values for fields that are nil.
-func (u *GetSomething200ResponseJSON2) ApplyDefaults() {
-	if u.GetSomething200ResponseJSONAnyOf0 != nil {
-		u.GetSomething200ResponseJSONAnyOf0.ApplyDefaults()
-	}
-	if u.GetSomething200ResponseJSONAnyOf11 != nil {
-		u.GetSomething200ResponseJSONAnyOf11.ApplyDefaults()
-	}
+func (t *GetSomething200ResponseJSON2) ApplyDefaults() {
 }
 
 // #/paths//something/get/responses/200/content/application/json/schema/properties/results/items/anyOf/0
@@ -165,4 +173,31 @@ var openAPISpec = decodeOpenAPISpecCached()
 // GetOpenAPISpecJSON returns the raw OpenAPI spec as JSON bytes.
 func GetOpenAPISpecJSON() ([]byte, error) {
 	return openAPISpec()
+}
+
+// JSONMerge merges two JSON-encoded objects. Fields from patch override
+// fields in base. Both arguments must be valid JSON objects (or nil/null).
+func JSONMerge(base, patch json.RawMessage) (json.RawMessage, error) {
+	if len(base) == 0 || string(base) == "null" {
+		return patch, nil
+	}
+	if len(patch) == 0 || string(patch) == "null" {
+		return base, nil
+	}
+
+	var baseMap map[string]json.RawMessage
+	if err := json.Unmarshal(base, &baseMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling base: %w", err)
+	}
+
+	var patchMap map[string]json.RawMessage
+	if err := json.Unmarshal(patch, &patchMap); err != nil {
+		return nil, fmt.Errorf("JSONMerge: unmarshaling patch: %w", err)
+	}
+
+	for k, v := range patchMap {
+		baseMap[k] = v
+	}
+
+	return json.Marshal(baseMap)
 }
