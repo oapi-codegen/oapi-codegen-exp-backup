@@ -2,3 +2,6 @@ package: spec_ext
 output: output/spec_ext/types.gen.go
 generate:
   models: true
+generation:
+  runtime-package:
+    path: github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime

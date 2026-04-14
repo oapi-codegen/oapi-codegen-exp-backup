@@ -103,3 +103,508 @@ var openAPISpec = decodeOpenAPISpecCached()
 func GetOpenAPISpecJSON() ([]byte, error) {
 	return openAPISpec()
 }
+
+// MarshalText implements encoding.TextMarshaler for Date.
+
+// Format returns the date formatted according to layout.
+
+// ErrValidationEmail is the sentinel error returned when an email fails validation
+
+// Email represents an email address.
+// It is a string type that must pass regex validation before being marshalled
+// to JSON or unmarshalled from JSON.
+
+// Nullable is a generic type that can distinguish between:
+// - Field not provided (unspecified)
+// - Field explicitly set to null
+// - Field has a value
+//
+// This is implemented as a map[bool]T where:
+// - Empty map: unspecified
+// - map[false]T: explicitly null
+// - map[true]T: has a value
+
+// NewNullableWithValue creates a Nullable with the given value.
+
+// NewNullNullable creates a Nullable that is explicitly null.
+
+// Get returns the value if set, or an error if null or unspecified.
+
+// MustGet returns the value or panics if null or unspecified.
+
+// Set assigns a value.
+
+// SetNull marks the field as explicitly null.
+
+// SetUnspecified clears the field (as if it was never set).
+
+// IsNull returns true if the field is explicitly null.
+
+// IsSpecified returns true if the field was provided (either null or a value).
+
+// MarshalJSON implements json.Marshaler.
+
+// Unspecified - this shouldn't be called if omitempty is used correctly
+
+// UnmarshalJSON implements json.Unmarshaler.
+
+// ErrNullableIsNull is returned when trying to get a value from a null Nullable.
+
+// ErrNullableNotSpecified is returned when trying to get a value from an unspecified Nullable.
+
+// BindDeepObjectParam binds a deepObject-style parameter to a destination.
+// DeepObject style is only valid for query parameters and must be exploded.
+// Objects: ?paramName[key1]=value1&paramName[key2]=value2 -> struct{Key1, Key2}
+// Nested: ?paramName[outer][inner]=value -> struct{Outer: {Inner: value}}
+
+// UnmarshalDeepObject unmarshals deepObject-style query parameters to a destination.
+
+// Find all params that look like "paramName[..."
+
+// Trim the parameter name prefix
+
+// Reconstruct subscript paths
+
+// Check for Binder interface
+
+// Handle Date type
+
+// Handle time.Time type
+
+// Regular struct
+
+// BindFormParam binds a form-style parameter without explode to a destination.
+// Form style is the default for query and cookie parameters.
+// This function handles a single query parameter value (not url.Values).
+// Arrays: a,b,c -> []string{"a", "b", "c"}
+// Objects: key1,value1,key2,value2 -> struct{Key1, Key2}
+
+// Unescape based on location
+
+// Check for TextUnmarshaler
+
+// BindFormExplodeParam binds a form-style parameter with explode to a destination.
+// Form style is the default for query and cookie parameters.
+// This handles the exploded case where arrays come as multiple query params.
+// Arrays: ?param=a&param=b -> []string{"a", "b"} (values passed as slice)
+// Objects: ?key1=value1&key2=value2 -> struct{Key1, Key2} (queryParams passed)
+
+// For optional parameters, allocate if nil
+
+// For exploded objects, fields are spread across query params
+
+// Primitive
+
+// bindParamsToExplodedObject binds query params to struct fields for exploded objects.
+
+// indirectBinder checks if dest implements Binder and returns reflect values.
+
+// Handle special types like time.Time and Date
+
+// BindLabelParam binds a label-style parameter without explode to a destination.
+// Label style values are prefixed with a dot.
+// Primitives: .value -> "value"
+// Arrays: .a,b,c -> []string{"a", "b", "c"}
+// Objects: .key1,value1,key2,value2 -> struct{Key1, Key2}
+
+// Unescape based on location
+
+// Label style requires leading dot
+
+// Strip the leading dot and split on comma
+
+// Check for TextUnmarshaler
+
+// BindLabelExplodeParam binds a label-style parameter with explode to a destination.
+// Label style values are prefixed with a dot.
+// Primitives: .value -> "value"
+// Arrays: .a.b.c -> []string{"a", "b", "c"}
+// Objects: .key1=value1.key2=value2 -> struct{Key1, Key2}
+
+// Unescape based on location
+
+// Label style requires leading dot
+
+// Check for TextUnmarshaler
+
+// Split on dot (skip first empty part)
+
+// Split on dot (skip first empty part)
+
+// BindMatrixParam binds a matrix-style parameter without explode to a destination.
+// Matrix style values are prefixed with ;paramName=.
+// Primitives: ;paramName=value -> "value"
+// Arrays: ;paramName=a,b,c -> []string{"a", "b", "c"}
+// Objects: ;paramName=key1,value1,key2,value2 -> struct{Key1, Key2}
+
+// Unescape based on location
+
+// Matrix style requires ;paramName= prefix
+
+// Strip the prefix
+
+// Check for TextUnmarshaler
+
+// BindMatrixExplodeParam binds a matrix-style parameter with explode to a destination.
+// Matrix style values are prefixed with semicolons.
+// Primitives: ;paramName=value -> "value"
+// Arrays: ;paramName=a;paramName=b;paramName=c -> []string{"a", "b", "c"}
+// Objects: ;key1=value1;key2=value2 -> struct{Key1, Key2}
+
+// Unescape based on location
+
+// Break up on semicolon
+
+// First part should be empty since we start with ;
+
+// Check for TextUnmarshaler
+
+// For primitives, should be ;paramName=value
+
+// For objects, we have key1=value1, key2=value2
+
+// For arrays, strip paramName= prefix from each part
+
+// Primitive: ;paramName=value
+
+// BindPipeDelimitedParam binds a pipeDelimited-style parameter without explode.
+// Pipe-delimited style uses pipe as the separator.
+// Arrays: a|b|c -> []string{"a", "b", "c"}
+
+// Unescape based on location
+
+// Check for TextUnmarshaler
+
+// BindPipeDelimitedExplodeParam binds a pipeDelimited-style parameter with explode.
+// When exploded, arrays come as multiple query params (same as form explode).
+// Arrays: ?param=a&param=b -> []string{"a", "b"}
+
+// Exploded pipe-delimited is same as exploded form
+
+// BindSimpleParam binds a simple-style parameter without explode to a destination.
+// Simple style is the default for path and header parameters.
+// Arrays: a,b,c -> []string{"a", "b", "c"}
+// Objects: key1,value1,key2,value2 -> struct{Key1, Key2}
+
+// Unescape based on location
+
+// Check for TextUnmarshaler
+
+// Split on comma and bind as key,value pairs
+
+// BindSimpleExplodeParam binds a simple-style parameter with explode to a destination.
+// Simple style is the default for path and header parameters.
+// Arrays: a,b,c -> []string{"a", "b", "c"} (same as non-explode)
+// Objects: key1=value1,key2=value2 -> struct{Key1, Key2}
+
+// Unescape based on location
+
+// Check for TextUnmarshaler
+
+// Split on comma and bind as key=value pairs
+
+// BindSpaceDelimitedParam binds a spaceDelimited-style parameter without explode.
+// Space-delimited style uses space as the separator.
+// Arrays: a b c -> []string{"a", "b", "c"}
+
+// Unescape based on location
+
+// Check for TextUnmarshaler
+
+// BindSpaceDelimitedExplodeParam binds a spaceDelimited-style parameter with explode.
+// When exploded, arrays come as multiple query params (same as form explode).
+// Arrays: ?param=a&param=b -> []string{"a", "b"}
+
+// Exploded space-delimited is same as exploded form
+
+// ParamLocation indicates where a parameter is located in an HTTP request.
+
+// Binder is an interface for types that can bind themselves from a string value.
+
+// primitiveToString converts a primitive value to a string representation.
+// It handles basic Go types, time.Time, Date, and types that implement
+// json.Marshaler or fmt.Stringer.
+
+// Check for known types first (time, date, uuid)
+
+// Dereference pointers for optional values
+
+// Check if it's a UUID
+
+// Check if it implements json.Marshaler
+
+// marshalKnownTypes checks for special types (time.Time, Date, UUID) and marshals them.
+
+// escapeParameterString escapes a parameter value based on its location.
+// Query and path parameters need URL escaping; headers and cookies do not.
+
+// unescapeParameterString unescapes a parameter value based on its location.
+
+// sortedKeys returns the keys of a map in sorted order.
+
+// BindStringToObject binds a string value to a destination object.
+// It handles primitives, encoding.TextUnmarshaler, and the Binder interface.
+
+// Check for TextUnmarshaler
+
+// Check for Binder interface
+
+// Try JSON unmarshal as a fallback
+
+// bindSplitPartsToDestinationArray binds a slice of string parts to a destination slice.
+
+// bindSplitPartsToDestinationStruct binds string parts to a destination struct via JSON.
+
+// structToFieldDict converts a struct to a map of field names to string values.
+
+// Skip nil optional fields
+
+// StyleDeepObjectParam serializes a value using deepObject style.
+// DeepObject style is only valid for query parameters with object values and must be exploded.
+// Objects: paramName[key1]=value1&paramName[key2]=value2
+// Nested: paramName[outer][inner]=value
+
+// deepObject always requires explode=true
+
+// MarshalDeepObject marshals an object to deepObject style query parameters.
+
+// Marshal to JSON first to handle all field annotations
+
+// Prefix the param name to each subscripted field
+
+// Arrays use numerical subscripts [0], [1], etc.
+
+// Maps use key subscripts [key1], [key2], etc.
+
+// Concrete value: turn path into [a][b][c] format
+
+// StyleFormParam serializes a value using form style (RFC 6570) without exploding.
+// Form style is the default for query and cookie parameters.
+// Primitives: paramName=value
+// Arrays: paramName=a,b,c
+// Objects: paramName=key1,value1,key2,value2
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// Form without explode: paramName=a,b,c
+
+// Check for known types first
+
+// Check for json.Marshaler
+
+// Build field dictionary
+
+// Form style without explode: paramName=key1,value1,key2,value2
+
+// Form style without explode: paramName=key1,value1,key2,value2
+
+// StyleFormExplodeParam serializes a value using form style (RFC 6570) with exploding.
+// Form style is the default for query and cookie parameters.
+// Primitives: paramName=value
+// Arrays: paramName=a&paramName=b&paramName=c
+// Objects: key1=value1&key2=value2
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// Form with explode: paramName=a&paramName=b&paramName=c
+
+// Check for known types first
+
+// Check for json.Marshaler
+
+// Build field dictionary
+
+// Form style with explode: key1=value1&key2=value2
+
+// Form style with explode: key1=value1&key2=value2
+
+// StyleLabelParam serializes a value using label style (RFC 6570) without exploding.
+// Label style prefixes values with a dot.
+// Primitives: .value
+// Arrays: .a,b,c
+// Objects: .key1,value1,key2,value2
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// Label without explode: .a,b,c
+
+// Check for known types first
+
+// Check for json.Marshaler
+
+// Build field dictionary
+
+// Label style without explode: .key1,value1,key2,value2
+
+// Label style without explode: .key1,value1,key2,value2
+
+// StyleLabelExplodeParam serializes a value using label style (RFC 6570) with exploding.
+// Label style prefixes values with a dot.
+// Primitives: .value
+// Arrays: .a.b.c
+// Objects: .key1=value1.key2=value2
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// Label with explode: .a.b.c
+
+// Check for known types first
+
+// Check for json.Marshaler
+
+// Build field dictionary
+
+// Label style with explode: .key1=value1.key2=value2
+
+// Label style with explode: .key1=value1.key2=value2
+
+// StyleMatrixParam serializes a value using matrix style (RFC 6570) without exploding.
+// Matrix style prefixes values with ;paramName=.
+// Primitives: ;paramName=value
+// Arrays: ;paramName=a,b,c
+// Objects: ;paramName=key1,value1,key2,value2
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// Matrix without explode: ;paramName=a,b,c
+
+// Check for known types first
+
+// Check for json.Marshaler
+
+// Build field dictionary
+
+// Matrix style without explode: ;paramName=key1,value1,key2,value2
+
+// Matrix style without explode: ;paramName=key1,value1,key2,value2
+
+// StyleMatrixExplodeParam serializes a value using matrix style (RFC 6570) with exploding.
+// Matrix style prefixes values with ;paramName=.
+// Primitives: ;paramName=value
+// Arrays: ;paramName=a;paramName=b;paramName=c
+// Objects: ;key1=value1;key2=value2
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// Matrix with explode: ;paramName=a;paramName=b;paramName=c
+
+// Check for known types first
+
+// Check for json.Marshaler
+
+// Build field dictionary
+
+// Matrix style with explode: ;key1=value1;key2=value2
+
+// Matrix style with explode: ;key1=value1;key2=value2
+
+// StylePipeDelimitedParam serializes a value using pipeDelimited style without exploding.
+// Pipe-delimited style is used for query parameters with array values.
+// Arrays: paramName=a|b|c
+// Note: Only valid for arrays; objects should use other styles.
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// For primitives, fall back to form style
+
+// Pipe-delimited without explode: paramName=a|b|c
+
+// StylePipeDelimitedExplodeParam serializes a value using pipeDelimited style with exploding.
+// Pipe-delimited style is used for query parameters with array values.
+// Arrays: paramName=a&paramName=b&paramName=c (same as form explode)
+// Note: Only valid for arrays; objects should use other styles.
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// For primitives, fall back to form style
+
+// Pipe-delimited with explode: paramName=a&paramName=b&paramName=c
+
+// StyleSimpleParam serializes a value using simple style (RFC 6570) without exploding.
+// Simple style is the default for path and header parameters.
+// Arrays are comma-separated: a,b,c
+// Objects are key,value pairs: key1,value1,key2,value2
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// Check for known types first
+
+// Check for json.Marshaler
+
+// Build field dictionary
+
+// Simple style without explode: key1,value1,key2,value2
+
+// Simple style without explode: key1,value1,key2,value2
+
+// StyleSimpleExplodeParam serializes a value using simple style (RFC 6570) with exploding.
+// Simple style is the default for path and header parameters.
+// Arrays are comma-separated: a,b,c (same as non-explode)
+// Objects are key=value pairs: key1=value1,key2=value2
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// Exploded simple array is same as non-exploded: comma-separated
+
+// Check for known types first
+
+// Check for json.Marshaler
+
+// Build field dictionary
+
+// Simple style with explode: key1=value1,key2=value2
+
+// Simple style with explode: key1=value1,key2=value2
+
+// StyleSpaceDelimitedParam serializes a value using spaceDelimited style without exploding.
+// Space-delimited style is used for query parameters with array values.
+// Arrays: paramName=a b c (space-separated)
+// Note: Only valid for arrays; objects should use other styles.
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// For primitives, fall back to form style
+
+// Space-delimited without explode: paramName=a b c (space becomes %20 when encoded)
+
+// StyleSpaceDelimitedExplodeParam serializes a value using spaceDelimited style with exploding.
+// Space-delimited style is used for query parameters with array values.
+// Arrays: paramName=a&paramName=b&paramName=c (same as form explode)
+// Note: Only valid for arrays; objects should use other styles.
+
+// Dereference pointers
+
+// Check for TextMarshaler (but not time.Time or Date)
+
+// For primitives, fall back to form style
+
+// Space-delimited with explode: paramName=a&paramName=b&paramName=c
+
+// JSONMerge merges two JSON-encoded objects. Fields from patch override
+// fields in base. Both arguments must be valid JSON objects (or nil/null).
+
+// MarshalForm marshals a struct into url.Values using the struct's json tags
+// as field names. It handles nested structs, slices, pointers, and
+// AdditionalProperties maps.

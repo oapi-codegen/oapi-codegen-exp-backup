@@ -4,28 +4,30 @@ import (
 	"encoding/json"
 	"testing"
 	"time"
+
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // TestDateIntervalFieldOrder verifies the x-order extension affects field ordering.
 // The spec defines end (x-order: 2) before start (x-order: 1), but x-order should
 // reorder them so start comes first.
 func TestDateIntervalFieldOrder(t *testing.T) {
-	start := &Date{Time: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)}
-	end := &Date{Time: time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)}
+	start := &types.Date{Time: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)}
+	end := &types.Date{Time: time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)}
 	d := DateInterval{
 		Start: start,
 		End:   end,
 	}
-	if d.Start.Format(DateFormat) != "2024-01-01" {
+	if d.Start.Format(types.DateFormat) != "2024-01-01" {
 		t.Errorf("unexpected start: %s", d.Start)
 	}
-	if d.End.Format(DateFormat) != "2024-12-31" {
+	if d.End.Format(types.DateFormat) != "2024-12-31" {
 		t.Errorf("unexpected end: %s", d.End)
 	}
 }
 
 func TestDateIntervalJSONRoundTrip(t *testing.T) {
-	start := &Date{Time: time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC)}
+	start := &types.Date{Time: time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC)}
 	d := DateInterval{Start: start}
 	data, err := json.Marshal(d)
 	if err != nil {
@@ -35,7 +37,7 @@ func TestDateIntervalJSONRoundTrip(t *testing.T) {
 	if err := json.Unmarshal(data, &decoded); err != nil {
 		t.Fatalf("unmarshal failed: %v", err)
 	}
-	if decoded.Start == nil || decoded.Start.Format(DateFormat) != "2024-06-15" {
+	if decoded.Start == nil || decoded.Start.Format(types.DateFormat) != "2024-06-15" {
 		t.Errorf("round-trip failed for start date")
 	}
 }

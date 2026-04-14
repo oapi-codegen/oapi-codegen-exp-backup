@@ -3,6 +3,8 @@ package output
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // TestNameNormalizerPetType verifies that the Pet type has correctly named
@@ -65,7 +67,7 @@ func TestNameNormalizerOneOf2ThingsOneOf0(t *testing.T) {
 
 // TestNameNormalizerOneOf2ThingsOneOf1 verifies the second oneOf variant with a UUID ID.
 func TestNameNormalizerOneOf2ThingsOneOf1(t *testing.T) {
-	var id UUID
+	var id types.UUID
 	v := OneOf2ThingsOneOf1{ID: id}
 	_ = v
 }

@@ -10,16 +10,16 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/google/uuid"
+	oapiCodegenTypesPkg "github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // #/components/schemas/Alarm
 // Alarm Information
 type Alarm struct {
 	// Identifier of the Alarm.
-	UnderscoreID *UUID `form:"_id,omitempty" json:"_id,omitempty"`
+	UnderscoreID *oapiCodegenTypesPkg.UUID `form:"_id,omitempty" json:"_id,omitempty"`
 	// Identifier of the Alarm.
-	ID *UUID `form:"id,omitempty" json:"id,omitempty"`
+	ID *oapiCodegenTypesPkg.UUID `form:"id,omitempty" json:"id,omitempty"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -72,5 +72,3 @@ var openAPISpec = decodeOpenAPISpecCached()
 func GetOpenAPISpecJSON() ([]byte, error) {
 	return openAPISpec()
 }
-
-type UUID = uuid.UUID

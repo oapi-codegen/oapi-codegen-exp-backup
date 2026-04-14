@@ -4,3 +4,5 @@ generation:
   callback-initiator: true
   callback-receiver: true
   server: std-http
+  runtime-package:
+    path: github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime

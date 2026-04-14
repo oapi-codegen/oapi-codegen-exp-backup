@@ -2,5 +2,8 @@ package: spec_base
 output: output/spec_base/types.gen.go
 generate:
   models: true
+generation:
+  runtime-package:
+    path: github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime
 import-mapping:
   spec-ext.yaml: github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/test/external_ref/removed_ref/output/spec_ext

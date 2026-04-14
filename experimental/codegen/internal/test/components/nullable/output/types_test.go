@@ -3,6 +3,8 @@ package output
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // TestNullableTypes verifies that nullable types are generated properly.
@@ -17,10 +19,10 @@ func TestNullableTypes(t *testing.T) {
 	name := "test-name"
 
 	// SimpleRequiredNullable is Nullable[int]
-	simpleRequired := NewNullableWithValue(42)
+	simpleRequired := types.NewNullableWithValue(42)
 
 	// ComplexRequiredNullable is wrapped in Nullable
-	complexRequired := NewNullableWithValue(ComplexRequiredNullable{Name: &name})
+	complexRequired := types.NewNullableWithValue(ComplexRequiredNullable{Name: &name})
 
 	req := PatchRequest{
 		SimpleRequiredNullable:  simpleRequired,
@@ -49,8 +51,8 @@ func TestNullableTypes(t *testing.T) {
 func TestPatchRequestJSONRoundTrip(t *testing.T) {
 	name := "test"
 	original := PatchRequest{
-		SimpleRequiredNullable:  NewNullableWithValue(100),
-		ComplexRequiredNullable: NewNullableWithValue(ComplexRequiredNullable{Name: &name}),
+		SimpleRequiredNullable:  types.NewNullableWithValue(100),
+		ComplexRequiredNullable: types.NewNullableWithValue(ComplexRequiredNullable{Name: &name}),
 	}
 
 	data, err := json.Marshal(original)
@@ -87,14 +89,14 @@ func TestComplexNullableTypes(t *testing.T) {
 	// Complex nullable types use Nullable[T]
 	name := "name"
 	opt := ComplexOptionalNullable{
-		AliasName: NewNullableWithValue("alias"),
+		AliasName: types.NewNullableWithValue("alias"),
 		Name:      &name,
 	}
 
 	req := PatchRequest{
-		SimpleRequiredNullable:  NewNullNullable[int](), // explicitly null
-		ComplexRequiredNullable: NewNullNullable[ComplexRequiredNullable](),
-		ComplexOptionalNullable: NewNullableWithValue(opt),
+		SimpleRequiredNullable:  types.NewNullNullable[int](), // explicitly null
+		ComplexRequiredNullable: types.NewNullNullable[ComplexRequiredNullable](),
+		ComplexOptionalNullable: types.NewNullableWithValue(opt),
 	}
 
 	// Check the complex optional nullable
@@ -118,7 +120,7 @@ func TestComplexNullableTypes(t *testing.T) {
 
 func TestNullableThreeStates(t *testing.T) {
 	// Test unspecified (nil/empty map)
-	unspecified := Nullable[string](nil)
+	unspecified := types.Nullable[string](nil)
 	if unspecified.IsSpecified() {
 		t.Error("unspecified should not be specified")
 	}
@@ -126,12 +128,12 @@ func TestNullableThreeStates(t *testing.T) {
 		t.Error("unspecified should not be null")
 	}
 	_, err := unspecified.Get()
-	if err != ErrNullableNotSpecified {
+	if err != types.ErrNullableNotSpecified {
 		t.Errorf("Get() on unspecified should return ErrNullableNotSpecified, got %v", err)
 	}
 
 	// Test explicitly null
-	null := NewNullNullable[string]()
+	null := types.NewNullNullable[string]()
 	if !null.IsSpecified() {
 		t.Error("null should be specified")
 	}
@@ -139,12 +141,12 @@ func TestNullableThreeStates(t *testing.T) {
 		t.Error("null should be null")
 	}
 	_, err = null.Get()
-	if err != ErrNullableIsNull {
+	if err != types.ErrNullableIsNull {
 		t.Errorf("Get() on null should return ErrNullableIsNull, got %v", err)
 	}
 
 	// Test with value
-	withValue := NewNullableWithValue("hello")
+	withValue := types.NewNullableWithValue("hello")
 	if !withValue.IsSpecified() {
 		t.Error("withValue should be specified")
 	}
@@ -164,12 +166,12 @@ func TestNullableJSONMarshal(t *testing.T) {
 	// Test marshaling each state
 	tests := []struct {
 		name     string
-		nullable Nullable[string]
+		nullable types.Nullable[string]
 		want     string
 	}{
-		{"with value", NewNullableWithValue("test"), `"test"`},
-		{"explicitly null", NewNullNullable[string](), "null"},
-		{"unspecified", Nullable[string](nil), "null"}, // unspecified marshals as null
+		{"with value", types.NewNullableWithValue("test"), `"test"`},
+		{"explicitly null", types.NewNullNullable[string](), "null"},
+		{"unspecified", types.Nullable[string](nil), "null"}, // unspecified marshals as null
 	}
 
 	for _, tt := range tests {
@@ -194,12 +196,12 @@ func TestNullableJSONUnmarshal(t *testing.T) {
 		wantErr   error
 	}{
 		{"with value", `"test"`, false, "test", nil},
-		{"explicitly null", "null", true, "", ErrNullableIsNull},
+		{"explicitly null", "null", true, "", types.ErrNullableIsNull},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var n Nullable[string]
+			var n types.Nullable[string]
 			if err := json.Unmarshal([]byte(tt.json), &n); err != nil {
 				t.Fatalf("Unmarshal failed: %v", err)
 			}
@@ -251,8 +253,8 @@ func TestAdditionalPropertiesFalse(t *testing.T) {
 	// The struct has AdditionalProperties field but additionalProperties: false
 	// means unknown fields are still collected but not expected
 	req := PatchRequest{
-		SimpleRequiredNullable:  NewNullableWithValue(1),
-		ComplexRequiredNullable: NewNullNullable[ComplexRequiredNullable](),
+		SimpleRequiredNullable:  types.NewNullableWithValue(1),
+		ComplexRequiredNullable: types.NewNullNullable[ComplexRequiredNullable](),
 		AdditionalProperties:    map[string]any{"extra": "value"},
 	}
 

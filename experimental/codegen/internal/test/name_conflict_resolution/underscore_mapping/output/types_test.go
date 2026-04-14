@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // TestAlarmInstantiation verifies the Alarm type with UUID fields.
@@ -59,7 +60,7 @@ func TestAlarmJSONRoundTrip(t *testing.T) {
 
 // TestUUIDTypeAlias verifies that the UUID type alias resolves to uuid.UUID.
 func TestUUIDTypeAlias(t *testing.T) {
-	u := UUID(uuid.New())
+	u := types.UUID(uuid.New())
 	// Verify it behaves like uuid.UUID
 	str := u.String()
 	if len(str) != 36 {

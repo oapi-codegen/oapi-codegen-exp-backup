@@ -9,37 +9,35 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"mime/multipart"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
+	oapiCodegenHelpersPkg "github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/helpers"
+	oapiCodegenTypesPkg "github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // #/components/schemas/AllTypesRequired
 type AllTypesRequired struct {
-	IntField      int       `form:"intField" json:"intField"`
-	Int32Field    int32     `form:"int32Field" json:"int32Field"`
-	Int64Field    int64     `form:"int64Field" json:"int64Field"`
-	FloatField    float32   `form:"floatField" json:"floatField"`
-	DoubleField   float64   `form:"doubleField" json:"doubleField"`
-	NumberField   float32   `form:"numberField" json:"numberField"`
-	StringField   string    `form:"stringField" json:"stringField"`
-	BoolField     bool      `form:"boolField" json:"boolField"`
-	DateField     Date      `form:"dateField" json:"dateField"`
-	DateTimeField time.Time `form:"dateTimeField" json:"dateTimeField"`
-	UUIDField     UUID      `form:"uuidField" json:"uuidField"`
-	EmailField    Email     `form:"emailField" json:"emailField"`
-	URIField      string    `form:"uriField" json:"uriField"`
-	HostnameField string    `form:"hostnameField" json:"hostnameField"`
-	Ipv4Field     string    `form:"ipv4Field" json:"ipv4Field"`
-	Ipv6Field     string    `form:"ipv6Field" json:"ipv6Field"`
-	ByteField     []byte    `form:"byteField" json:"byteField"`
-	BinaryField   File      `form:"binaryField" json:"binaryField"`
-	PasswordField string    `form:"passwordField" json:"passwordField"`
+	IntField      int                       `form:"intField" json:"intField"`
+	Int32Field    int32                     `form:"int32Field" json:"int32Field"`
+	Int64Field    int64                     `form:"int64Field" json:"int64Field"`
+	FloatField    float32                   `form:"floatField" json:"floatField"`
+	DoubleField   float64                   `form:"doubleField" json:"doubleField"`
+	NumberField   float32                   `form:"numberField" json:"numberField"`
+	StringField   string                    `form:"stringField" json:"stringField"`
+	BoolField     bool                      `form:"boolField" json:"boolField"`
+	DateField     oapiCodegenTypesPkg.Date  `form:"dateField" json:"dateField"`
+	DateTimeField time.Time                 `form:"dateTimeField" json:"dateTimeField"`
+	UUIDField     oapiCodegenTypesPkg.UUID  `form:"uuidField" json:"uuidField"`
+	EmailField    oapiCodegenTypesPkg.Email `form:"emailField" json:"emailField"`
+	URIField      string                    `form:"uriField" json:"uriField"`
+	HostnameField string                    `form:"hostnameField" json:"hostnameField"`
+	Ipv4Field     string                    `form:"ipv4Field" json:"ipv4Field"`
+	Ipv6Field     string                    `form:"ipv6Field" json:"ipv6Field"`
+	ByteField     []byte                    `form:"byteField" json:"byteField"`
+	BinaryField   oapiCodegenTypesPkg.File  `form:"binaryField" json:"binaryField"`
+	PasswordField string                    `form:"passwordField" json:"passwordField"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -48,18 +46,18 @@ func (s *AllTypesRequired) ApplyDefaults() {
 
 // #/components/schemas/AllTypesOptional
 type AllTypesOptional struct {
-	IntField      *int       `form:"intField,omitempty" json:"intField,omitempty"`
-	Int32Field    *int32     `form:"int32Field,omitempty" json:"int32Field,omitempty"`
-	Int64Field    *int64     `form:"int64Field,omitempty" json:"int64Field,omitempty"`
-	FloatField    *float32   `form:"floatField,omitempty" json:"floatField,omitempty"`
-	DoubleField   *float64   `form:"doubleField,omitempty" json:"doubleField,omitempty"`
-	NumberField   *float32   `form:"numberField,omitempty" json:"numberField,omitempty"`
-	StringField   *string    `form:"stringField,omitempty" json:"stringField,omitempty"`
-	BoolField     *bool      `form:"boolField,omitempty" json:"boolField,omitempty"`
-	DateField     *Date      `form:"dateField,omitempty" json:"dateField,omitempty"`
-	DateTimeField *time.Time `form:"dateTimeField,omitempty" json:"dateTimeField,omitempty"`
-	UUIDField     *UUID      `form:"uuidField,omitempty" json:"uuidField,omitempty"`
-	EmailField    *Email     `form:"emailField,omitempty" json:"emailField,omitempty"`
+	IntField      *int                       `form:"intField,omitempty" json:"intField,omitempty"`
+	Int32Field    *int32                     `form:"int32Field,omitempty" json:"int32Field,omitempty"`
+	Int64Field    *int64                     `form:"int64Field,omitempty" json:"int64Field,omitempty"`
+	FloatField    *float32                   `form:"floatField,omitempty" json:"floatField,omitempty"`
+	DoubleField   *float64                   `form:"doubleField,omitempty" json:"doubleField,omitempty"`
+	NumberField   *float32                   `form:"numberField,omitempty" json:"numberField,omitempty"`
+	StringField   *string                    `form:"stringField,omitempty" json:"stringField,omitempty"`
+	BoolField     *bool                      `form:"boolField,omitempty" json:"boolField,omitempty"`
+	DateField     *oapiCodegenTypesPkg.Date  `form:"dateField,omitempty" json:"dateField,omitempty"`
+	DateTimeField *time.Time                 `form:"dateTimeField,omitempty" json:"dateTimeField,omitempty"`
+	UUIDField     *oapiCodegenTypesPkg.UUID  `form:"uuidField,omitempty" json:"uuidField,omitempty"`
+	EmailField    *oapiCodegenTypesPkg.Email `form:"emailField,omitempty" json:"emailField,omitempty"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -68,9 +66,9 @@ func (s *AllTypesOptional) ApplyDefaults() {
 
 // #/components/schemas/NullableRequired
 type NullableRequired struct {
-	NullableString Nullable[string]                         `form:"nullableString" json:"nullableString"`
-	NullableInt    Nullable[int]                            `form:"nullableInt" json:"nullableInt"`
-	NullableObject Nullable[NullableRequiredNullableObject] `form:"nullableObject" json:"nullableObject"`
+	NullableString oapiCodegenTypesPkg.Nullable[string]                         `form:"nullableString" json:"nullableString"`
+	NullableInt    oapiCodegenTypesPkg.Nullable[int]                            `form:"nullableInt" json:"nullableInt"`
+	NullableObject oapiCodegenTypesPkg.Nullable[NullableRequiredNullableObject] `form:"nullableObject" json:"nullableObject"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -88,8 +86,8 @@ func (s *NullableRequiredNullableObject) ApplyDefaults() {
 
 // #/components/schemas/NullableOptional
 type NullableOptional struct {
-	NullableString Nullable[string] `form:"nullableString,omitempty" json:"nullableString,omitempty"`
-	NullableInt    Nullable[int]    `form:"nullableInt,omitempty" json:"nullableInt,omitempty"`
+	NullableString oapiCodegenTypesPkg.Nullable[string] `form:"nullableString,omitempty" json:"nullableString,omitempty"`
+	NullableInt    oapiCodegenTypesPkg.Nullable[int]    `form:"nullableInt,omitempty" json:"nullableInt,omitempty"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -98,8 +96,8 @@ func (s *NullableOptional) ApplyDefaults() {
 
 // #/components/schemas/NullableRefOneOf
 type NullableRefOneOf struct {
-	NullableObject         Nullable[SimpleObject] `form:"nullableObject" json:"nullableObject"`
-	NullableObjectOptional Nullable[SimpleObject] `form:"nullableObjectOptional,omitempty" json:"nullableObjectOptional,omitempty"`
+	NullableObject         oapiCodegenTypesPkg.Nullable[SimpleObject] `form:"nullableObject" json:"nullableObject"`
+	NullableObjectOptional oapiCodegenTypesPkg.Nullable[SimpleObject] `form:"nullableObjectOptional,omitempty" json:"nullableObjectOptional,omitempty"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -108,7 +106,7 @@ func (s *NullableRefOneOf) ApplyDefaults() {
 
 // #/components/schemas/NullableRefAnyOf
 type NullableRefAnyOf struct {
-	NullableObject Nullable[SimpleObject] `form:"nullableObject" json:"nullableObject"`
+	NullableObject oapiCodegenTypesPkg.Nullable[SimpleObject] `form:"nullableObject" json:"nullableObject"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -496,7 +494,7 @@ func (t *AnyOfPrimitives) MergeString0(v string) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -521,7 +519,7 @@ func (t *AnyOfPrimitives) MergeInt1(v int) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -566,7 +564,7 @@ func (t *AnyOfObjects) MergeSimpleObject(v SimpleObject) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -591,7 +589,7 @@ func (t *AnyOfObjects) MergeBaseProperties(v BaseProperties) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -636,7 +634,7 @@ func (t *AnyOfMixed) MergeString0(v string) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -661,7 +659,7 @@ func (t *AnyOfMixed) MergeSimpleObject(v SimpleObject) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -686,7 +684,7 @@ func (t *AnyOfMixed) MergeAnyOfMixedAnyOf2(v AnyOfMixedAnyOf2) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -715,7 +713,7 @@ func (s *AnyOfMixedAnyOf2) ApplyDefaults() {
 }
 
 // #/components/schemas/AnyOfNullable
-type AnyOfNullable = Nullable[string]
+type AnyOfNullable = oapiCodegenTypesPkg.Nullable[string]
 
 // #/components/schemas/ObjectWithAnyOfProperty
 type ObjectWithAnyOfProperty struct {
@@ -752,7 +750,7 @@ func (t *ObjectWithAnyOfPropertyValue) MergeString0(v string) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -777,7 +775,7 @@ func (t *ObjectWithAnyOfPropertyValue) MergeInt1(v int) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -802,7 +800,7 @@ func (t *ObjectWithAnyOfPropertyValue) MergeBool2(v bool) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -850,7 +848,7 @@ func (t *ArrayOfAnyOfItem) MergeSimpleObject(v SimpleObject) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -875,7 +873,7 @@ func (t *ArrayOfAnyOfItem) MergeBaseProperties(v BaseProperties) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -920,7 +918,7 @@ func (t *OneOfSimple) MergeSimpleObject(v SimpleObject) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -945,7 +943,7 @@ func (t *OneOfSimple) MergeBaseProperties(v BaseProperties) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -992,7 +990,7 @@ func (t *OneOfWithDiscriminator) MergeCat(v Cat) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1019,7 +1017,7 @@ func (t *OneOfWithDiscriminator) MergeDog(v Dog) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1091,7 +1089,7 @@ func (t *OneOfWithDiscriminatorMapping) MergeCat(v Cat) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1118,7 +1116,7 @@ func (t *OneOfWithDiscriminatorMapping) MergeDog(v Dog) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1210,7 +1208,7 @@ func (t *OneOfInline) MergeOneOfInlineOneOf0(v OneOfInlineOneOf0) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1235,7 +1233,7 @@ func (t *OneOfInline) MergeOneOfInlineOneOf1(v OneOfInlineOneOf1) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1298,7 +1296,7 @@ func (t *OneOfPrimitives) MergeString0(v string) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1323,7 +1321,7 @@ func (t *OneOfPrimitives) MergeFloat321(v float32) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1348,7 +1346,7 @@ func (t *OneOfPrimitives) MergeBool2(v bool) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1405,7 +1403,7 @@ func (t *ObjectWithOneOfPropertyVariant) MergeCat(v Cat) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1432,7 +1430,7 @@ func (t *ObjectWithOneOfPropertyVariant) MergeDog(v Dog) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1571,7 +1569,7 @@ func (t *AllOfWithOneOfAllOf1) MergeCat(v Cat) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1598,7 +1596,7 @@ func (t *AllOfWithOneOfAllOf1) MergeDog(v Dog) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1668,7 +1666,7 @@ func (t *OneOfWithAllOf) MergeOneOfWithAllOfOneOf0(v OneOfWithAllOfOneOf0) error
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1693,7 +1691,7 @@ func (t *OneOfWithAllOf) MergeOneOfWithAllOfOneOf1(v OneOfWithAllOfOneOf1) error
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1786,7 +1784,7 @@ func (t *RecursiveOneOf) MergeString0(v string) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1811,7 +1809,7 @@ func (t *RecursiveOneOf) MergeRecursiveOneOfOneOf1(v RecursiveOneOfOneOf1) error
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1922,7 +1920,7 @@ type EmptySchema = any
 type AnyValue = any
 
 // #/components/schemas/ExplicitAny
-type ExplicitAny = Nullable[string]
+type ExplicitAny = oapiCodegenTypesPkg.Nullable[string]
 
 // #/components/schemas/ComplexNested
 type ComplexNested struct {
@@ -1964,7 +1962,7 @@ func (t *ComplexNestedMetadataValue) MergeString0(v string) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1989,7 +1987,7 @@ func (t *ComplexNestedMetadataValue) MergeInt1(v int) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2014,7 +2012,7 @@ func (t *ComplexNestedMetadataValue) MergeLBracketString2(v []string) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2073,7 +2071,7 @@ func (t *ComplexNestedConfig) MergeComplexNestedConfigOneOf0(v ComplexNestedConf
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2098,7 +2096,7 @@ func (t *ComplexNestedConfig) MergeComplexNestedConfigOneOf1(v ComplexNestedConf
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2251,288 +2249,4 @@ var openAPISpec = decodeOpenAPISpecCached()
 // GetOpenAPISpecJSON returns the raw OpenAPI spec as JSON bytes.
 func GetOpenAPISpecJSON() ([]byte, error) {
 	return openAPISpec()
-}
-
-const DateFormat = "2006-01-02"
-
-type Date struct {
-	time.Time
-}
-
-func (d Date) MarshalJSON() ([]byte, error) {
-	return json.Marshal(d.Format(DateFormat))
-}
-
-func (d *Date) UnmarshalJSON(data []byte) error {
-	var dateStr string
-	err := json.Unmarshal(data, &dateStr)
-	if err != nil {
-		return err
-	}
-	parsed, err := time.Parse(DateFormat, dateStr)
-	if err != nil {
-		return err
-	}
-	d.Time = parsed
-	return nil
-}
-
-func (d Date) String() string {
-	return d.Format(DateFormat)
-}
-
-func (d *Date) UnmarshalText(data []byte) error {
-	parsed, err := time.Parse(DateFormat, string(data))
-	if err != nil {
-		return err
-	}
-	d.Time = parsed
-	return nil
-}
-
-// MarshalText implements encoding.TextMarshaler for Date.
-func (d Date) MarshalText() ([]byte, error) {
-	return []byte(d.Format(DateFormat)), nil
-}
-
-// Format returns the date formatted according to layout.
-func (d Date) Format(layout string) string {
-	return d.Time.Format(layout)
-}
-
-const (
-	emailRegexString = "^(?:(?:(?:(?:[a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(?:\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|(?:(?:\\x22)(?:(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(?:\\x20|\\x09)+)?(?:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(\\x20|\\x09)+)?(?:\\x22))))@(?:(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$"
-)
-
-var (
-	emailRegex = regexp.MustCompile(emailRegexString)
-)
-
-// ErrValidationEmail is the sentinel error returned when an email fails validation
-var ErrValidationEmail = errors.New("email: failed to pass regex validation")
-
-// Email represents an email address.
-// It is a string type that must pass regex validation before being marshalled
-// to JSON or unmarshalled from JSON.
-type Email string
-
-func (e Email) MarshalJSON() ([]byte, error) {
-	if !emailRegex.MatchString(string(e)) {
-		return nil, ErrValidationEmail
-	}
-
-	return json.Marshal(string(e))
-}
-
-func (e *Email) UnmarshalJSON(data []byte) error {
-	if e == nil {
-		return nil
-	}
-
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return err
-	}
-
-	*e = Email(s)
-	if !emailRegex.MatchString(s) {
-		return ErrValidationEmail
-	}
-
-	return nil
-}
-
-type File struct {
-	multipart *multipart.FileHeader
-	data      []byte
-	filename  string
-}
-
-func (file *File) InitFromMultipart(header *multipart.FileHeader) {
-	file.multipart = header
-	file.data = nil
-	file.filename = ""
-}
-
-func (file *File) InitFromBytes(data []byte, filename string) {
-	file.data = data
-	file.filename = filename
-	file.multipart = nil
-}
-
-func (file File) MarshalJSON() ([]byte, error) {
-	b, err := file.Bytes()
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(b)
-}
-
-func (file *File) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &file.data)
-}
-
-func (file File) Bytes() ([]byte, error) {
-	if file.multipart != nil {
-		f, err := file.multipart.Open()
-		if err != nil {
-			return nil, err
-		}
-		defer func() { _ = f.Close() }()
-		return io.ReadAll(f)
-	}
-	return file.data, nil
-}
-
-func (file File) Reader() (io.ReadCloser, error) {
-	if file.multipart != nil {
-		return file.multipart.Open()
-	}
-	return io.NopCloser(bytes.NewReader(file.data)), nil
-}
-
-func (file File) Filename() string {
-	if file.multipart != nil {
-		return file.multipart.Filename
-	}
-	return file.filename
-}
-
-func (file File) FileSize() int64 {
-	if file.multipart != nil {
-		return file.multipart.Size
-	}
-	return int64(len(file.data))
-}
-
-// Nullable is a generic type that can distinguish between:
-// - Field not provided (unspecified)
-// - Field explicitly set to null
-// - Field has a value
-//
-// This is implemented as a map[bool]T where:
-// - Empty map: unspecified
-// - map[false]T: explicitly null
-// - map[true]T: has a value
-type Nullable[T any] map[bool]T
-
-// NewNullableWithValue creates a Nullable with the given value.
-func NewNullableWithValue[T any](value T) Nullable[T] {
-	return Nullable[T]{true: value}
-}
-
-// NewNullNullable creates a Nullable that is explicitly null.
-func NewNullNullable[T any]() Nullable[T] {
-	return Nullable[T]{false: *new(T)}
-}
-
-// Get returns the value if set, or an error if null or unspecified.
-func (n Nullable[T]) Get() (T, error) {
-	if v, ok := n[true]; ok {
-		return v, nil
-	}
-	var zero T
-	if n.IsNull() {
-		return zero, ErrNullableIsNull
-	}
-	return zero, ErrNullableNotSpecified
-}
-
-// MustGet returns the value or panics if null or unspecified.
-func (n Nullable[T]) MustGet() T {
-	v, err := n.Get()
-	if err != nil {
-		panic(err)
-	}
-	return v
-}
-
-// Set assigns a value.
-func (n *Nullable[T]) Set(value T) {
-	*n = Nullable[T]{true: value}
-}
-
-// SetNull marks the field as explicitly null.
-func (n *Nullable[T]) SetNull() {
-	*n = Nullable[T]{false: *new(T)}
-}
-
-// SetUnspecified clears the field (as if it was never set).
-func (n *Nullable[T]) SetUnspecified() {
-	*n = nil
-}
-
-// IsNull returns true if the field is explicitly null.
-func (n Nullable[T]) IsNull() bool {
-	if n == nil {
-		return false
-	}
-	_, ok := n[false]
-	return ok
-}
-
-// IsSpecified returns true if the field was provided (either null or a value).
-func (n Nullable[T]) IsSpecified() bool {
-	return len(n) > 0
-}
-
-// MarshalJSON implements json.Marshaler.
-func (n Nullable[T]) MarshalJSON() ([]byte, error) {
-	if n.IsNull() {
-		return []byte("null"), nil
-	}
-	if v, ok := n[true]; ok {
-		return json.Marshal(v)
-	}
-	// Unspecified - this shouldn't be called if omitempty is used correctly
-	return []byte("null"), nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (n *Nullable[T]) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" {
-		n.SetNull()
-		return nil
-	}
-	var v T
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	n.Set(v)
-	return nil
-}
-
-// ErrNullableIsNull is returned when trying to get a value from a null Nullable.
-var ErrNullableIsNull = errors.New("nullable value is null")
-
-// ErrNullableNotSpecified is returned when trying to get a value from an unspecified Nullable.
-var ErrNullableNotSpecified = errors.New("nullable value is not specified")
-
-type UUID = uuid.UUID
-
-// JSONMerge merges two JSON-encoded objects. Fields from patch override
-// fields in base. Both arguments must be valid JSON objects (or nil/null).
-func JSONMerge(base, patch json.RawMessage) (json.RawMessage, error) {
-	if len(base) == 0 || string(base) == "null" {
-		return patch, nil
-	}
-	if len(patch) == 0 || string(patch) == "null" {
-		return base, nil
-	}
-
-	var baseMap map[string]json.RawMessage
-	if err := json.Unmarshal(base, &baseMap); err != nil {
-		return nil, fmt.Errorf("JSONMerge: unmarshaling base: %w", err)
-	}
-
-	var patchMap map[string]json.RawMessage
-	if err := json.Unmarshal(patch, &patchMap); err != nil {
-		return nil, fmt.Errorf("JSONMerge: unmarshaling patch: %w", err)
-	}
-
-	for k, v := range patchMap {
-		baseMap[k] = v
-	}
-
-	return json.Marshal(baseMap)
 }

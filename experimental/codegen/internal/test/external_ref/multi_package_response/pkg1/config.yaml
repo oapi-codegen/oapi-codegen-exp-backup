@@ -2,5 +2,8 @@ package: output
 output: pkg1/output/types.gen.go
 generate:
   models: true
+generation:
+  runtime-package:
+    path: github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime
 import-mapping:
   pkg2.yaml: github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/test/external_ref/multi_package_response/pkg2/output

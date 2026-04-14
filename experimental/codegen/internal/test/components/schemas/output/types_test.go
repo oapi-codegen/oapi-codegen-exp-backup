@@ -3,6 +3,8 @@ package output
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 func TestGenericObjectInstantiation(t *testing.T) {
@@ -21,9 +23,9 @@ func TestNullablePropertiesInstantiation(t *testing.T) {
 	opt := "optional"
 	np := NullableProperties{
 		Optional:            &opt,
-		OptionalAndNullable: NewNullableWithValue("nullable"),
+		OptionalAndNullable: types.NewNullableWithValue("nullable"),
 		Required:            "required",
-		RequiredAndNullable: NewNullNullable[string](),
+		RequiredAndNullable: types.NewNullNullable[string](),
 	}
 	if np.Required != "required" {
 		t.Errorf("unexpected required: %s", np.Required)
@@ -43,7 +45,7 @@ func TestNullablePropertiesInstantiation(t *testing.T) {
 func TestNullablePropertiesJSONRoundTrip(t *testing.T) {
 	np := NullableProperties{
 		Required:            "req",
-		RequiredAndNullable: NewNullableWithValue("val"),
+		RequiredAndNullable: types.NewNullableWithValue("val"),
 	}
 	data, err := json.Marshal(np)
 	if err != nil {

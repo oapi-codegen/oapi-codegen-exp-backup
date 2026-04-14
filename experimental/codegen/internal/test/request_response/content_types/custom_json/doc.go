@@ -3,4 +3,4 @@
 // https://github.com/oapi-codegen/oapi-codegen/issues/1209
 package custom_json
 
-//go:generate go run ../../../../../../cmd/oapi-codegen -package output -output output/types.gen.go spec.yaml
+//go:generate go run ../../../../../../cmd/oapi-codegen -config config.yaml spec.yaml

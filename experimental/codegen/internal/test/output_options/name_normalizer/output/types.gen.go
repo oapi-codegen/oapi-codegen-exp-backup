@@ -11,7 +11,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/google/uuid"
+	oapiCodegenHelpersPkg "github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/helpers"
+	oapiCodegenTypesPkg "github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // #/components/schemas/Pet
@@ -65,7 +66,7 @@ func (t *OneOf2Things) MergeOneOf2ThingsOneOf0(v OneOf2ThingsOneOf0) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -90,7 +91,7 @@ func (t *OneOf2Things) MergeOneOf2ThingsOneOf1(v OneOf2ThingsOneOf1) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -120,7 +121,7 @@ func (s *OneOf2ThingsOneOf0) ApplyDefaults() {
 
 // #/components/schemas/OneOf2things/oneOf/1
 type OneOf2ThingsOneOf1 struct {
-	ID UUID `form:"id" json:"id"`
+	ID oapiCodegenTypesPkg.UUID `form:"id" json:"id"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -177,33 +178,4 @@ var openAPISpec = decodeOpenAPISpecCached()
 // GetOpenAPISpecJSON returns the raw OpenAPI spec as JSON bytes.
 func GetOpenAPISpecJSON() ([]byte, error) {
 	return openAPISpec()
-}
-
-type UUID = uuid.UUID
-
-// JSONMerge merges two JSON-encoded objects. Fields from patch override
-// fields in base. Both arguments must be valid JSON objects (or nil/null).
-func JSONMerge(base, patch json.RawMessage) (json.RawMessage, error) {
-	if len(base) == 0 || string(base) == "null" {
-		return patch, nil
-	}
-	if len(patch) == 0 || string(patch) == "null" {
-		return base, nil
-	}
-
-	var baseMap map[string]json.RawMessage
-	if err := json.Unmarshal(base, &baseMap); err != nil {
-		return nil, fmt.Errorf("JSONMerge: unmarshaling base: %w", err)
-	}
-
-	var patchMap map[string]json.RawMessage
-	if err := json.Unmarshal(patch, &patchMap); err != nil {
-		return nil, fmt.Errorf("JSONMerge: unmarshaling patch: %w", err)
-	}
-
-	for k, v := range patchMap {
-		baseMap[k] = v
-	}
-
-	return json.Marshal(baseMap)
 }

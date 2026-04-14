@@ -1,4 +1,7 @@
 package: packagea
 output: internal/codegen/test/external_ref/packagea/spec.gen.go
+generation:
+  runtime-package:
+    path: github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime
 import-mapping:
   ../packageb/spec.yaml: github.com/oapi-codegen/oapi-codegen-exp/experimental/codegen/internal/test/external_ref/packageb

@@ -15,7 +15,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/google/uuid"
+	oapiCodegenTypesPkg "github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // #/components/schemas/TreePlantingRequest
@@ -35,9 +35,9 @@ func (s *TreePlantingRequest) ApplyDefaults() {
 // #/components/schemas/TreeWithId
 type TreeWithID struct {
 	// Unique identifier for this planting request
-	ID       UUID   `form:"id" json:"id"`
-	Location string `form:"location" json:"location"`
-	Kind     string `form:"kind" json:"kind"`
+	ID       oapiCodegenTypesPkg.UUID `form:"id" json:"id"`
+	Location string                   `form:"location" json:"location"`
+	Kind     string                   `form:"kind" json:"kind"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -46,9 +46,9 @@ func (s *TreeWithID) ApplyDefaults() {
 
 // #/components/schemas/TreePlantingResult
 type TreePlantingResult struct {
-	ID       UUID    `form:"id" json:"id"`
-	Location *string `form:"location,omitempty" json:"location,omitempty"`
-	Kind     *string `form:"kind,omitempty" json:"kind,omitempty"`
+	ID       oapiCodegenTypesPkg.UUID `form:"id" json:"id"`
+	Location *string                  `form:"location,omitempty" json:"location,omitempty"`
+	Kind     *string                  `form:"kind,omitempty" json:"kind,omitempty"`
 	// Whether the tree was successfully planted
 	Success bool `form:"success" json:"success"`
 }
@@ -470,5 +470,3 @@ func TreePlantedCallbackHandler(si CallbackReceiverInterface, errHandler func(w 
 		handler.ServeHTTP(w, r)
 	})
 }
-
-type UUID = uuid.UUID

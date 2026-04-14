@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -37,7 +38,7 @@ func TestWebhookRequestBodyAliases(t *testing.T) {
 // Verify ServerInterface is implementable (server for registration endpoints)
 type testServer struct{}
 
-func (s *testServer) DeregisterWebhook(w http.ResponseWriter, r *http.Request, id UUID) {
+func (s *testServer) DeregisterWebhook(w http.ResponseWriter, r *http.Request, id types.UUID) {
 	w.WriteHeader(http.StatusNoContent)
 }
 func (s *testServer) RegisterWebhook(w http.ResponseWriter, r *http.Request, kind string) {

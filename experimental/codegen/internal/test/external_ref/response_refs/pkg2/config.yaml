@@ -2,3 +2,6 @@ package: output
 output: pkg2/output/types.gen.go
 generate:
   models: true
+generation:
+  runtime-package:
+    path: github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime

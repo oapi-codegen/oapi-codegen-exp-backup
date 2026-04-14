@@ -6,17 +6,17 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
-	"time"
+
+	oapiCodegenTypesPkg "github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // #/components/schemas/DateInterval
 type DateInterval struct {
-	Start *Date `form:"start,omitempty" json:"start,omitempty"`
-	End   *Date `form:"end,omitempty" json:"end,omitempty"`
+	Start *oapiCodegenTypesPkg.Date `form:"start,omitempty" json:"start,omitempty"`
+	End   *oapiCodegenTypesPkg.Date `form:"end,omitempty" json:"end,omitempty"`
 }
 
 // ApplyDefaults sets default values for fields that are nil.
@@ -86,51 +86,4 @@ var openAPISpec = decodeOpenAPISpecCached()
 // GetOpenAPISpecJSON returns the raw OpenAPI spec as JSON bytes.
 func GetOpenAPISpecJSON() ([]byte, error) {
 	return openAPISpec()
-}
-
-const DateFormat = "2006-01-02"
-
-type Date struct {
-	time.Time
-}
-
-func (d Date) MarshalJSON() ([]byte, error) {
-	return json.Marshal(d.Format(DateFormat))
-}
-
-func (d *Date) UnmarshalJSON(data []byte) error {
-	var dateStr string
-	err := json.Unmarshal(data, &dateStr)
-	if err != nil {
-		return err
-	}
-	parsed, err := time.Parse(DateFormat, dateStr)
-	if err != nil {
-		return err
-	}
-	d.Time = parsed
-	return nil
-}
-
-func (d Date) String() string {
-	return d.Format(DateFormat)
-}
-
-func (d *Date) UnmarshalText(data []byte) error {
-	parsed, err := time.Parse(DateFormat, string(data))
-	if err != nil {
-		return err
-	}
-	d.Time = parsed
-	return nil
-}
-
-// MarshalText implements encoding.TextMarshaler for Date.
-func (d Date) MarshalText() ([]byte, error) {
-	return []byte(d.Format(DateFormat)), nil
-}
-
-// Format returns the date formatted according to layout.
-func (d Date) Format(layout string) string {
-	return d.Time.Format(layout)
 }

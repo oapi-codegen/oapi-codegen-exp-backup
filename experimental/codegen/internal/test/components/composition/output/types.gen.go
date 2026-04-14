@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
+	oapiCodegenHelpersPkg "github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/helpers"
 )
 
 // #/components/schemas/SchemaObject
@@ -505,7 +507,7 @@ func (t *OneOfObject1) MergeOneOfVariant1(v OneOfVariant1) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -530,7 +532,7 @@ func (t *OneOfObject1) MergeOneOfVariant2(v OneOfVariant2) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -555,7 +557,7 @@ func (t *OneOfObject1) MergeOneOfVariant3(v OneOfVariant3) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -601,7 +603,7 @@ func (t *OneOfObject2) MergeOneOfObject2OneOf0(v OneOfObject2OneOf0) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -626,7 +628,7 @@ func (t *OneOfObject2) MergeLBracketFloat321(v []float32) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -651,7 +653,7 @@ func (t *OneOfObject2) MergeBool2(v bool) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -715,7 +717,7 @@ func (t *OneOfObject3Union) MergeOneOfVariant1(v OneOfVariant1) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -740,7 +742,7 @@ func (t *OneOfObject3Union) MergeOneOfVariant2(v OneOfVariant2) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -765,7 +767,7 @@ func (t *OneOfObject3Union) MergeOneOfVariant3(v OneOfVariant3) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -812,7 +814,7 @@ func (t *OneOfObject4) MergeOneOfVariant1(v OneOfVariant1) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -837,7 +839,7 @@ func (t *OneOfObject4) MergeOneOfVariant2(v OneOfVariant2) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -862,7 +864,7 @@ func (t *OneOfObject4) MergeOneOfVariant3(v OneOfVariant3) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -941,7 +943,7 @@ func (t *OneOfObject5) MergeOneOfVariant4(v OneOfVariant4) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -968,7 +970,7 @@ func (t *OneOfObject5) MergeOneOfVariant5(v OneOfVariant5) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1041,7 +1043,7 @@ func (t *OneOfObject6) MergeOneOfVariant4(v OneOfVariant4) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1068,7 +1070,7 @@ func (t *OneOfObject6) MergeOneOfVariant5(v OneOfVariant5) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1139,7 +1141,7 @@ func (t *OneOfObject61) MergeOneOfVariant4(v OneOfVariant4) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1164,7 +1166,7 @@ func (t *OneOfObject61) MergeOneOfVariant5(v OneOfVariant5) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1233,7 +1235,7 @@ func (t *OneOfObject62) MergeOneOfVariant4(v OneOfVariant4) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1258,7 +1260,7 @@ func (t *OneOfObject62) MergeOneOfVariant51(v OneOfVariant51) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1330,7 +1332,7 @@ func (t *OneOfObject7Item) MergeOneOfVariant1(v OneOfVariant1) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1355,7 +1357,7 @@ func (t *OneOfObject7Item) MergeOneOfVariant2(v OneOfVariant2) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1402,7 +1404,7 @@ func (t *OneOfObject8) MergeOneOfVariant1(v OneOfVariant1) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1427,7 +1429,7 @@ func (t *OneOfObject8) MergeOneOfVariant2(v OneOfVariant2) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1507,7 +1509,7 @@ func (t *OneOfObject9) MergeOneOfVariant1(v OneOfVariant1) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1534,7 +1536,7 @@ func (t *OneOfObject9) MergeOneOfVariant6(v OneOfVariant6) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1637,7 +1639,7 @@ func (t *OneOfObject10) MergeAny0(v any) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1662,7 +1664,7 @@ func (t *OneOfObject10) MergeAny1(v any) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1766,7 +1768,7 @@ func (t *OneOfObject11Value) MergeBool0(v bool) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1791,7 +1793,7 @@ func (t *OneOfObject11Value) MergeFloat321(v float32) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1816,7 +1818,7 @@ func (t *OneOfObject11Value) MergeString2(v string) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1925,7 +1927,7 @@ func (t *OneOfObject12AllOf0) MergeString0(v string) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1950,7 +1952,7 @@ func (t *OneOfObject12AllOf0) MergeFloat321(v float32) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -1995,7 +1997,7 @@ func (t *OneOfObject12AllOf1) MergeOneOfVariant3(v OneOfVariant3) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2020,7 +2022,7 @@ func (t *OneOfObject12AllOf1) MergeOneOfVariant4(v OneOfVariant4) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2069,7 +2071,7 @@ func (t *OneOfObject13) MergeOneOfVariant1(v OneOfVariant1) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2096,7 +2098,7 @@ func (t *OneOfObject13) MergeOneOfVariant6(v OneOfVariant6) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2196,7 +2198,7 @@ func (t *AnyOfObject1) MergeOneOfVariant4(v OneOfVariant4) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2221,7 +2223,7 @@ func (t *AnyOfObject1) MergeOneOfVariant5(v OneOfVariant5) error {
 	if err != nil {
 		return err
 	}
-	merged, err := JSONMerge(t.union, b)
+	merged, err := oapiCodegenHelpersPkg.JSONMerge(t.union, b)
 	t.union = merged
 	return err
 }
@@ -2681,31 +2683,4 @@ var openAPISpec = decodeOpenAPISpecCached()
 // GetOpenAPISpecJSON returns the raw OpenAPI spec as JSON bytes.
 func GetOpenAPISpecJSON() ([]byte, error) {
 	return openAPISpec()
-}
-
-// JSONMerge merges two JSON-encoded objects. Fields from patch override
-// fields in base. Both arguments must be valid JSON objects (or nil/null).
-func JSONMerge(base, patch json.RawMessage) (json.RawMessage, error) {
-	if len(base) == 0 || string(base) == "null" {
-		return patch, nil
-	}
-	if len(patch) == 0 || string(patch) == "null" {
-		return base, nil
-	}
-
-	var baseMap map[string]json.RawMessage
-	if err := json.Unmarshal(base, &baseMap); err != nil {
-		return nil, fmt.Errorf("JSONMerge: unmarshaling base: %w", err)
-	}
-
-	var patchMap map[string]json.RawMessage
-	if err := json.Unmarshal(patch, &patchMap); err != nil {
-		return nil, fmt.Errorf("JSONMerge: unmarshaling patch: %w", err)
-	}
-
-	for k, v := range patchMap {
-		baseMap[k] = v
-	}
-
-	return json.Marshal(baseMap)
 }

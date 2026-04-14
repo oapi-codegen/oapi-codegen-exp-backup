@@ -4,6 +4,8 @@ output: output/types.gen.go
 generation:
   client: true
   simple-client: true
+  runtime-package:
+    path: github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime
 
 content-types:
   - "^application/json$"

@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"testing"
 	"time"
+
+	"github.com/oapi-codegen/oapi-codegen-exp/experimental/runtime/types"
 )
 
 // TestAliasedDateType verifies that date format types work correctly.
 // https://github.com/oapi-codegen/oapi-codegen/issues/579
 func TestDateType(t *testing.T) {
 	// Direct date type should use Date
-	date := Date{Time: time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC)}
+	date := types.Date{Time: time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC)}
 
 	data, err := json.Marshal(date)
 	if err != nil {
@@ -21,7 +23,7 @@ func TestDateType(t *testing.T) {
 		t.Errorf("Marshal result = %s, want %q", string(data), "2024-01-15")
 	}
 
-	var decoded Date
+	var decoded types.Date
 	if err := json.Unmarshal(data, &decoded); err != nil {
 		t.Fatalf("Unmarshal failed: %v", err)
 	}
@@ -33,7 +35,7 @@ func TestDateType(t *testing.T) {
 
 func TestPetWithDateFields(t *testing.T) {
 	// Pet has born_at as *Date (direct format: date)
-	date := Date{Time: time.Date(2020, 6, 15, 0, 0, 0, 0, time.UTC)}
+	date := types.Date{Time: time.Date(2020, 6, 15, 0, 0, 0, 0, time.UTC)}
 	pet := Pet{
 		BornAt: &date,
 	}
