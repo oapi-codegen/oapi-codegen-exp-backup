@@ -286,10 +286,15 @@ func (g *gatherer) gatherFromResponse(response *v3.Response, basePath SchemaPath
 }
 
 func (g *gatherer) gatherFromMediaType(mt *v3.MediaType, basePath SchemaPath) {
-	if mt == nil || mt.Schema == nil {
+	if mt == nil {
 		return
 	}
-	g.gatherFromSchemaProxy(mt.Schema, basePath.Append("schema"), nil)
+	if mt.Schema != nil {
+		g.gatherFromSchemaProxy(mt.Schema, basePath.Append("schema"), nil)
+	}
+	if mt.ItemSchema != nil {
+		g.gatherFromSchemaProxy(mt.ItemSchema, basePath.Append("itemSchema"), nil)
+	}
 }
 
 func (g *gatherer) gatherFromCallback(callback *v3.Callback, basePath SchemaPath) {
